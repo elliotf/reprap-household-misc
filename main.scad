@@ -12,7 +12,7 @@ collar_height = 3;
 collar_hole_diam = 36;
 collar_outer_diam = 99.5;
 
-shade_height = 105;
+shade_height = 125;
 shade_base_outer_diam = collar_outer_diam;
 shade_base_thickness = extrusion_height*6;
 shade_wall_thickness = extrusion_width*perimeters;

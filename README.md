@@ -1,6 +1,6 @@
 # reprap-lampshade
 
-![rendered picture of lampshade](shade.png)
+![rendered picture of lampshade](open_top_fluted.png)
 
 parametric lampshade, to replace a lampshade that was lost to a curious two-year-old.
 

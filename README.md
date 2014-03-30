@@ -1,4 +1,5 @@
-reprap-guitar-mount
-===================
+# reprap-guitar-mount
 
-A printable guitar mount for the wall
+A parametric printable guitar mount for the wall.
+
+Sized for my son's "toy" guitar.

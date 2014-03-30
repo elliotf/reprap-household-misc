@@ -49,10 +49,10 @@ module main() {
   module holes() {
     % translate([0,dist_from_wall/2*front,dist_from_wall+20]) cube([10,dist_from_wall,10],center=true);
 
-    translate([0,neck_pos*front,neck_pos+10])
+    translate([0,(neck_pos-10)*front,neck_pos+10])
       scale([1,1,.4])
         rotate([90,0,0])
-          cylinder(r=head_width/2,h=head_thickness,center=true);
+          cylinder(r=head_width/2,h=head_thickness+20,center=true);
 
     // neck opening
     translate([0,(dist_from_wall+head_thickness/2+10)*front,total_depth/2])

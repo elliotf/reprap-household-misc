@@ -6,10 +6,9 @@ screw_spacing = 105;
 nut_diam = 7.3;
 nut_thickness = 3.5;
 
-handle_height = 10;
 handle_opening_depth = 22;
-handle_diam = 25;
-handle_height = 30;
+handle_diam = 20;
+handle_height = 25;
 
 resolution = 16;
 
@@ -60,12 +59,12 @@ module handle(handle_side=left) {
     }
 
     // flatten the print side
-    translate([0,handle_height/2,-handle_diam/2])
+    translate([0,handle_height/2,-handle_diam*.75])
       cube([screw_spacing*2,handle_height*4,handle_diam*.25],center=true);
   }
 
   difference() {
-    body();
+    scale([1,1,1.5]) body();
     holes();
   }
 }

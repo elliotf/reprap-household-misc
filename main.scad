@@ -1,14 +1,24 @@
 left = -1;
 right = 1;
+top = -1;
+bottom = 1;
 
+// for M4
 screw_diam = 4.25;
-screw_spacing = 105;
 nut_diam = 7.3;
 nut_thickness = 3.5;
+
+// for 6-32
+screw_diam = 3.75;
+nut_diam = 8.1;
+nut_thickness = 5;
+
+screw_spacing = 105;
 
 handle_opening_depth = 22;
 handle_diam = 20;
 handle_height = 25;
+handle_scale = 1.5;
 
 resolution = 16;
 
@@ -45,7 +55,7 @@ module handle(handle_side=left) {
       translate([screw_spacing/2*side,0,0]) {
         // screw holes
         rotate([90,0,0]) rotate([0,0,22.5])
-          hole(screw_diam,handle_height*2,8);
+          hole(screw_diam,handle_height*2+handle_diam*.7,8);
 
         // captive nuts
         translate([0,nut_diam*1.5,0]) {
@@ -58,20 +68,21 @@ module handle(handle_side=left) {
       }
     }
 
-    // flatten the print side
-    translate([0,handle_height/2,-handle_diam*.75])
-      cube([screw_spacing*2,handle_height*4,handle_diam*.25],center=true);
+    // flatten the top/bottom
+    for (side=[top,bottom]) {
+      translate([0,handle_height/2,(handle_diam/2*handle_scale)*side])
+        cube([screw_spacing*2,handle_height*4,handle_diam*.2*handle_scale],center=true);
+    }
   }
 
   difference() {
-    scale([1,1,1.5]) body();
+    scale([1,1,handle_scale]) body();
     holes();
   }
 }
 
-translate([0,0,handle_diam/2-handle_diam/8])
-  for(side=[left,right])
-    rotate([0,0,90-90*side])
-      translate([0,5,0])
-        handle(side);
+for(side=[left,right])
+  rotate([0,0,90-90*side])
+    translate([0,5,0])
+      handle(side);
 

@@ -17,12 +17,12 @@ module backback_hook() {
   elongation = 1.3;
   //elongation = 1;
   depth      = 60;
-  height     = 50;
+  height     = 40;
+  width      = 60;
 
   screw_diam            = 5;
   screw_head_diam       = 10;
   screw_mount_thickness = 10;
-  screw_hole_spacing    = post_height - screw_head_diam*2;
 
   screw_hole_y = hat_diam*.325*elongation;
   rim_depth    = 10;
@@ -30,51 +30,63 @@ module backback_hook() {
   module body() {
     scale([1,elongation,1]) {
       intersection() {
-        hull() {
-          translate([0,0,depth/2-rim_depth/2])
-            hole(hat_diam,rim_depth,resolution);
-          translate([0,0,-depth/2+1])
-            hole(hat_diam*.85,2,resolution);
+        translate([0,-hat_diam/2,0]) {
+          rotate([0,90,0]) {
+            hull() {
+              translate([0,0,depth/2-rim_depth/2])
+                hole(hat_diam,rim_depth,resolution);
+              translate([0,0,-depth/2+1])
+                hole(hat_diam*.85,2,resolution);
+            }
+          }
         }
 
-        translate([0,hat_diam*.66,0])
-          scale([.5,1,1])
-            rotate([0,0,45])
-              cube([hat_diam+5,hat_diam+5,depth+5],center=true);
+        translate([0,-height/2,0]) {
+          cube([depth+1,height+.05,width],center=true);
+        }
       }
     }
   }
 
   module holes() {
-    scale([1,elongation,1]) {
-      translate([0,0,depth/2])
-        scale([1,1,.95])
-          rotate([0,0,11.25])
-            sphere(r=hat_diam/2-5,$fn=16);
-    }
+    translate([0,-hat_diam/2,0]) {
+      rotate([0,90,0]) {
+        hull() {
+          translate([0,0,depth/2-rim_depth/2+0.05])// rotate([0,0,22.5])
+            hole(hat_diam*.8,rim_depth,12);
 
-    // mounting hole
-    translate([0,screw_hole_y+screw_head_diam*.75,0]) {
-      hole(screw_diam,depth+1,16);
-      hole(screw_head_diam,depth-screw_mount_thickness*2,16);
-    }
-
-    cube([hat_diam+1,(screw_hole_y-screw_head_diam*1.5)*2,depth+1],center=true);
-  }
-
-  module bridges() {
-    for (side=[top,bottom]) {
-      translate([0,screw_hole_spacing/2*side,post_depth-screw_mount_thickness]) {
-        cube([screw_head_diam+1,screw_head_diam+1,print_layer_height],center=true);
+          translate([0,0,-depth/2+screw_mount_thickness+1])// rotate([0,0,22.5])
+            hole(hat_diam*.65,2,12);
+        }
       }
     }
+    /*
+    # translate([depth/2,-hat_diam/2,0]) {
+      rotate([0,90,0])
+        scale([1,elongation,1]) {
+          rotate([0,0,11.25])
+            sphere(r=hat_diam/3-5,$fn=16);
+        }
+    }
+    */
+
+    // mounting hole
+    translate([depth/2,-height/2-screw_head_diam/2,0]) {
+      rotate([0,90,0]) {
+        rotate([0,0,22.5]) {
+          hole(screw_diam,depth*2+1,8);
+          hole(screw_head_diam,(depth-screw_mount_thickness)*2,8);
+        }
+      }
+    }
+
+    //cube([hat_diam+1,(screw_hole_y-screw_head_diam*1.5)*2,depth+1],center=true);
   }
 
   difference() {
     body();
     holes();
   }
-  //bridges();
 }
 
 backback_hook();

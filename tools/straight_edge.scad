@@ -1,5 +1,5 @@
-side_length=180;
-thickness = 4;
+side_length=175;
+thickness = 3;
 diagonal_length = sqrt(2*pow(side_length, 2));
 
 echo("DIAGONAL LENGTH: ", diagonal_length);

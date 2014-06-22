@@ -9,7 +9,7 @@ side_thickness  = 23;
 side_length     = 50;
 side_height     = 50;
 
-resolution = 18*1;
+resolution = 18*3;
 
 module board() {
   translate([0,25,-25])
@@ -29,14 +29,10 @@ module guard() {
 
       for (side = [left, right]) {
         rotate([0,0,45*side]) {
-          translate([inner_wall*.425*side,10+side_thickness-board_thickness/2-inner_wall/2,-side_thickness])
-            cube([board_thickness+inner_wall*1.125,side_thickness*2+inner_wall-20,side_thickness*2],center=true);
+          translate([inner_wall*.375*side,10+side_thickness-board_thickness/2-inner_wall/2,-side_thickness])
+            cube([board_thickness+inner_wall*1.25,side_thickness*2+inner_wall-20,side_thickness*2],center=true);
         }
       }
-
-      translate([0,board_thickness*.75+inner_wall*.5,0])
-          rotate([45,0,0])
-            cube([side_thickness,side_thickness,20],center=true);
     }
   }
 
@@ -53,7 +49,7 @@ module guard() {
       for (side = [left,right]) {
         rotate([0,0,-45*side])
           translate([0,-9.5,-side_height])
-            cube([side_thickness,10,8],center=true);
+            cube([side_thickness,10,8.5],center=true);
       }
 
       rotate([0,0,45])

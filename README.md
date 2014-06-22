@@ -1,3 +1,3 @@
-# reprap-handles
+# reprap-household-misc
 
-Printable parametric handles, because the handles on the laundry doors fell apart.
+Miscellaneous things that I've designed for use around the house

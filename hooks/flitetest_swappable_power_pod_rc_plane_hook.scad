@@ -6,10 +6,10 @@ front = -1;
 rear = 1;
 
 pod_opening_width    = 62;
-base_thickness       = 4;
-hook_thickness       = 4;
+base_thickness       = 3;
+hook_thickness       = 3;
 hook_height          = 20;
-hook_depth           = 25;
+hook_depth           = 20;
 hole_spacing         = 70;
 nail_diam            = 1.5;
 nail_head_diam       = 2.5;

@@ -16,6 +16,7 @@ height_beyond_screws = 10;
 clamp_height = screw_hole_spacing + height_beyond_screws*2;
 gap_width = 11;
 screw_area_depth = nut_hole_diam + 5;
+screw_area_depth = nut_hole_diam;
 screw_area_thickness = clamp_thickness*2+gap_width;
 
 function accurate_diam(diam,sides) = 1 / cos(180/sides) / 2 * diam;
@@ -36,24 +37,24 @@ module main() {
   }
 
   module holes() {
-    hole(clamp_inner_diam, clamp_height + 0.1, 72*2);
+    # hole(clamp_inner_diam, clamp_height + 0.1, 72*2);
 
     translate([0,(clamp_inner_diam/2-gap_width*.3)*front,0]) {
       rotate([0,0,0]) {
-        hole(gap_width*1.25,clamp_height+1,6);
+        hole(gap_width*1.15,clamp_height+1,6);
       }
     }
 
-    translate([0,(clamp_outer_diam/2 + screw_area_depth/2) * front,0]) {
+    translate([0,(clamp_outer_diam/2) * front,0]) {
       cube([gap_width,screw_area_depth*2,clamp_height+0.1],center=true);
 
       for (side=[top,bottom]) {
         translate([0,screw_hole_diam/2,screw_hole_spacing/2*side]) { 
           rotate([0,90,0]) rotate([0,0,90]) {
-            hole(screw_hole_diam,100,6);
+            # hole(screw_hole_diam,100,6);
 
             for (side=[left,right]) {
-              translate([0,0,(1+screw_area_thickness/2)*side]) {
+              translate([0,0,(2.5+screw_area_thickness/2)*side]) {
                 hole(nut_hole_diam,nut_hole_depth*3,6);
               }
             }

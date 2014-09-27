@@ -7,7 +7,7 @@ build_x = 180;
 build_y = 180;
 build_z = 180;
 
-print_layer_height = 0.2;
+extrusion_height = 0.2;
 extrusion_width = 0.5;
 resolution = 72;
 
@@ -16,6 +16,7 @@ function accurate_diam(diam,sides) = 1 / cos(180/sides) / 2 * diam;
 module hole(diam,len,sides=8) {
   cylinder(r=accurate_diam(diam,sides),h=len,center=true,$fn=sides);
 }
+
 lamp_tilt_angle = 20;
 wall_thickness = 2;
 
@@ -38,9 +39,13 @@ bulb_height_above_socket = 85;
 bulb_heat_clearance = 30;
 
 shade_height      = bulb_height_above_socket + 20;
-shade_bottom_diam = insert_mount_diam + bulb_heat_clearance/2;
-shade_top_diam    = shade_bottom_diam + shade_height - 2;
-shade_wall_thickness = extrusion_width*2;
+shade_height      = bulb_height_above_socket + insert_threaded_height + 20;
+shade_height      = 155;
+echo("SHADE HEIGHT: ", shade_height + 13);
+shade_bottom_diam = insert_diam + bulb_heat_clearance;
+shade_bottom_diam = 55;
+shade_top_diam    = 170;
+shade_wall_thickness = extrusion_width*4;
 
 wall_brace_thickness = wall_thickness*4;
 wall_plate_width     = 80;
@@ -165,30 +170,100 @@ module insert_mount() {
 }
 
 module shade() {
+ resolution = 36*3;
+
   module body() {
     hull() {
-      hole(shade_bottom_diam,2,resolution);
+      translate([0,0,-12.5]) {
+        //hole(shade_bottom_diam,1,resolution);
+        hole(insert_mount_diam+4,1,resolution);
+      }
 
       translate([0,0,shade_height]) {
-        hole(shade_top_diam,2,resolution);
+        hole(shade_top_diam,1,resolution);
       }
     }
   }
 
   module holes() {
     hull() {
-      hole(shade_bottom_diam,2,resolution);
+      translate([0,0,3]) {
+        hole(shade_bottom_diam,1,resolution);
+      }
 
-      translate([0,0,shade_height]) {
-        hole(shade_top_diam,2,resolution);
+      translate([0,0,shade_height+1]) {
+        hole(shade_top_diam-shade_wall_thickness*2,1,resolution);
+      }
+    }
+
+    hole(insert_diam-1, 400, resolution);
+
+    translate([0,0,-20]) {
+      hole(insert_mount_diam+1,40,resolution);
+
+      translate([0,shade_bottom_diam/2,-2]) {
+        cube([wall_brace_thickness+1,shade_bottom_diam,40],center=true);
+      }
+    }
+
+    // ventilation/convection holes
+    // also, provide support for top layer
+    num_holes = 18;
+    hole_diam = 3;
+    for(i=[1:num_holes]) {
+      rotate([0,0,(i-.0)*(360/num_holes)]) {
+        translate([0,insert_diam/2+hole_diam/2+3.5,0]) {
+          rotate([15,0,0]) {
+            hole(hole_diam,100,6);
+          }
+        }
+      }
+    }
+
+    /*
+    num_holes_z = 10;
+    z_spacing = shade_height/num_holes_z*2;
+    for(z=[1:num_holes_z]) {
+      for(i=[1:num_holes/2]) {
+        rotate([0,0,(i-(z%2/2))*(360/(num_holes/4))]) {
+          translate([0,insert_diam/2+hole_diam/2+3,z*z_spacing]) {
+            rotate([15,0,0]) {
+              rotate([0,0,22.5]) {
+                hole(.5,500,4);
+              }
+            }
+          }
+        }
+      }
+    }
+    */
+
+    top_cut_side = shade_top_diam+5;
+    translate([0,-top_cut_side/2,shade_height]) {
+      rotate([-lamp_tilt_angle,0,0]) {
+        translate([0,top_cut_side/2,50]) {
+          cube([top_cut_side,top_cut_side,100],center=true);
+        }
       }
     }
   }
 
-  difference() {
-    //body();
-    //holes();
+  module bridges() {
+    translate([0,0,0]) {
+      hole(insert_mount_diam+2,extrusion_height,resolution);
+    }
+
+    translate([0,0,-6.5]) {
+      hole(insert_diam-4,13,resolution);
+    }
   }
+
+  difference() {
+    body();
+    holes();
+  }
+
+  bridges();
 }
 
 module wall_hanging_lamp() {
@@ -197,8 +272,8 @@ module wall_hanging_lamp() {
       rotate([lamp_tilt_angle,0,0]) {
         insert_mount();
 
-        translate([0,0,insert_height]) {
-          % shade();
+        translate([0,0,insert_mount_height+0.5]) {
+          # shade();
         }
       }
     }
@@ -206,7 +281,7 @@ module wall_hanging_lamp() {
 
   module holes() {
     translate([0,-tan(lamp_tilt_angle)*100,build_z/2]) {
-      % cube([build_x,build_y,build_z],center=true);
+      //% cube([build_x,build_y,build_z],center=true);
     }
     translate([0,0,-50]) {
       cube([400,400,100],center=true);
@@ -218,4 +293,5 @@ module wall_hanging_lamp() {
   }
 }
 
-wall_hanging_lamp();
+//wall_hanging_lamp();
+shade();

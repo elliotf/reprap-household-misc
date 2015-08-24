@@ -97,6 +97,11 @@ module sides() {
   }
 
   module holes() {
+    for(i=[1,2]) {
+      translate([0,-backing_sheet_height/2-sheet_thickness/2+shelf_spacing*i]) {
+        box_holes_for_side(shelf_depth,4);
+      }
+    }
   }
 
   difference() {

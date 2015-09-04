@@ -1,3 +1,17 @@
+left   = -1;
+right  = 1;
+front  = -1;
+rear   = 1;
+top    = 1;
+bottom = -1;
+
+x = 0;
+y = 1;
+z = 2;
+
+width  = x;
+depth  = y;
+height = z;
 
 function accurate_diam(diam,sides) = 1 / cos(180/sides) / 2 * diam;
 

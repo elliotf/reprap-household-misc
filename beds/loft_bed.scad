@@ -16,24 +16,26 @@ platform_width     = mattress_width + extra_space_on_side_of_mattress;
 mattress_length    = 75;
 mattress_thickness = 4;
 
-slot_support_material_width = 2;
+slot_support_material_width = 1.5;
 tab_tongue_length           = 1;
 
-num_bed_supports = 6;
+num_bed_supports = 3;
 bed_support_width  = 5;
 bed_support_spacing = (mattress_length - bed_support_width*3 - tab_tongue_length*2) / (num_bed_supports - 1);
 bed_support_pos_z   = -sheet_thickness/2;
 
 height_of_adult_sitting_cross_legged = 37;
 height_below_kitchen_table           = 28;
-clearance_under_bed                  = height_below_kitchen_table + 2;
+clearance_under_bed                  = height_below_kitchen_table + 6;
 
-side_rail_height_above_mattress = 8.5;
+side_rail_height_above_mattress = 6;
 side_rail_height_below_mattress = sheet_thickness*2 + slot_support_material_width;
 side_rail_height                = mattress_thickness + side_rail_height_above_mattress + side_rail_height_below_mattress;
 side_rail_length                = mattress_length;
 
-side_rail_tab_height            = 4.5;
+side_rail_tab_height            = side_rail_height/3 - tab_tongue_length;
+side_rail_tab_height            = slot_support_material_width*2;
+side_rail_tab_height            = 3.5;
 side_rail_num_tabs              = 2;
 side_rail_pos_y                 = platform_width/2 + sheet_thickness/2;
 side_rail_pos_z                 = mattress_thickness + side_rail_height_above_mattress - side_rail_height/2;
@@ -50,10 +52,11 @@ leg_brace_pos_x  = end_board_pos_x - sheet_thickness/2 - leg_brace_width/2;
 leg_brace_pos_y  = side_rail_pos_y + sheet_thickness;
 leg_brace_pos_z  = end_board_pos_z;
 
-echo("SIDE RAIL HEIGHT: ", side_rail_height);
-echo("SIDE RAIL LENGTH: ", side_rail_length);
-echo("END BOARD HEIGHT: ", end_board_height);
-echo("END BOARD WIDTH:  ", end_board_width);
+echo("CLEARANCE UNDER BED: ", clearance_under_bed);
+echo("SIDE RAIL HEIGHT:    ", side_rail_height);
+echo("SIDE RAIL LENGTH:    ", side_rail_length);
+echo("END BOARD HEIGHT:    ", end_board_height);
+echo("END BOARD WIDTH:     ", end_board_width);
 
 module tenon_hole(dim) {
   square([dim[x],dim[y]],center=true);
@@ -198,9 +201,9 @@ module end_board_base() {
   module holes() {
     // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
     rung_hole_width  = platform_width - bed_support_width*4;
-    rung_hole_height = 4;
-    rung_hole_spacing = 11;
-    rung_hole_from_bottom = 12;
+    rung_hole_height = 5;
+    rung_hole_spacing = 12;
+    rung_hole_from_bottom = 11;
     num_rungs = 2;
     for(rung=[0:num_rungs-1]) {
       hull() {
@@ -255,7 +258,7 @@ module footboard() {
   module holes() {
     // access cutout
     access_hole_width  = platform_width - bed_support_width*4;
-    access_hole_height = side_rail_height_above_mattress + mattress_thickness/2;
+    access_hole_height = side_rail_height_above_mattress + mattress_thickness*.75;
     translate([0,end_board_height/2]) {
       hull() {
         square([access_hole_width,1],center=true);

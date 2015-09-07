@@ -2,6 +2,9 @@ include <util.scad>;
 
 // sizes in imperial (inches)
 
+// FIXME: add some level of tolerance compensation (make tab slots marginally larger 1/16 to 1/64 of an inch?)
+// FIXME: create sample fitting piece to test design of tab/slot
+
 sheet_thickness = .75;
 tool_diam       = 0.25;
 resolution      = 72;
@@ -16,19 +19,22 @@ mattress_thickness = 4;
 slot_support_material_width = 2;
 tab_tongue_length           = 1;
 
-num_bed_supports = 5;
+num_bed_supports = 6;
 bed_support_width  = 5;
-bed_support_spacing = (mattress_length - bed_support_width*3) / (num_bed_supports - 1);
+bed_support_spacing = (mattress_length - bed_support_width*3 - tab_tongue_length*2) / (num_bed_supports - 1);
 bed_support_pos_z   = -sheet_thickness/2;
 
 height_of_adult_sitting_cross_legged = 37;
 height_below_kitchen_table           = 28;
-clearance_under_bed                  = height_below_kitchen_table + 1;
+clearance_under_bed                  = height_below_kitchen_table + 2;
 
 side_rail_height_above_mattress = 8.5;
 side_rail_height_below_mattress = sheet_thickness*2 + slot_support_material_width;
 side_rail_height                = mattress_thickness + side_rail_height_above_mattress + side_rail_height_below_mattress;
 side_rail_length                = mattress_length;
+
+side_rail_tab_height            = 4.5;
+side_rail_num_tabs              = 2;
 side_rail_pos_y                 = platform_width/2 + sheet_thickness/2;
 side_rail_pos_z                 = mattress_thickness + side_rail_height_above_mattress - side_rail_height/2;
 
@@ -67,9 +73,76 @@ module tenon_hole_3d(dim) {
   }
 }
 
+module fill_corner_with_round(diam=tool_diam) {
+  difference() {
+    square([diam,diam],center=true);
+    translate([diam/2,diam/2,0]) {
+      accurate_circle(diam,resolution);
+    }
+  }
+}
+
+module tab(height) {
+  rounded_diam = tab_tongue_length;
+
+  module body() {
+    translate([0,height/2,0]) {
+      fill_corner_with_round();
+    }
+    hull() {
+      translate([0,height/2-1]) {
+        square([2,2],center=true);
+      }
+      translate([sheet_thickness+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
+        accurate_circle(rounded_diam,resolution);
+      }
+      square([sheet_thickness*2+tab_tongue_length*2,height-rounded_diam],center=true);
+    }
+
+    hull() {
+      translate([sheet_thickness+tab_tongue_length/2,0,0]) {
+        square([tab_tongue_length,tab_tongue_length],center=true);
+        for(x=[left,right]) {
+          translate([x*(tab_tongue_length/2-rounded_diam/2),-height/2+rounded_diam/2]) {
+            accurate_circle(rounded_diam,resolution);
+          }
+        }
+      }
+    }
+  }
+
+  module holes() {
+    translate([sheet_thickness/2,-height/2]) {
+      hull() {
+        for(x=[left,right]) {
+          for(y=[top,bottom]) {
+            translate([(sheet_thickness/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2)*y,0]) {
+              accurate_circle(tool_diam,resolution);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
 module side_rail() {
   module body() {
     square([side_rail_length,side_rail_height],center=true);
+    for(x=[left,right]) {
+      for(i=[0:side_rail_num_tabs-1]) {
+        mirror([1-x,0,0]) {
+          translate([side_rail_length/2,-side_rail_height/2+side_rail_tab_height*(.5+i*2),0]) {
+            tab(side_rail_tab_height);
+          }
+        }
+      }
+    }
   }
 
   module holes() {
@@ -105,7 +178,7 @@ module end_board_base() {
     rung_hole_width  = platform_width - bed_support_width*4;
     rung_hole_height = 4;
     rung_hole_spacing = 11;
-    rung_hole_from_bottom = 11;
+    rung_hole_from_bottom = 12;
     num_rungs = 2;
     for(rung=[0:num_rungs-1]) {
       hull() {
@@ -149,14 +222,14 @@ module footboard() {
 
   module holes() {
     // access cutout
-    access_hole_top_width    = platform_width - bed_support_width*3;
+    access_hole_top_width    = platform_width - bed_support_width*2;
     access_hole_bottom_width = platform_width - bed_support_width*4;
     access_hole_height       = side_rail_height_above_mattress + mattress_thickness/2;
     translate([0,end_board_height/2]) {
       hull() {
         for(x=[left,right]) {
-          translate([access_hole_top_width/2*x,0]) {
-            accurate_circle(rounded_diam,resolution);
+          translate([access_hole_top_width/2*x,.5]) {
+            square([1,1],center=true);
           }
           translate([access_hole_bottom_width/2*x,-access_hole_height+rounded_diam/2]) {
             accurate_circle(rounded_diam,resolution);
@@ -255,7 +328,7 @@ module assembly() {
   // bed supports
   color("orange") {
     for(i=[0:num_bed_supports-1]) {
-      translate([-mattress_length/2+bed_support_width*1.5+bed_support_spacing*(i),0,bed_support_pos_z]) {
+      translate([-mattress_length/2+tab_tongue_length+bed_support_width*1.5+bed_support_spacing*(i),0,bed_support_pos_z]) {
           linear_extrude(height=sheet_thickness,center=true) {
             bed_support();
           }

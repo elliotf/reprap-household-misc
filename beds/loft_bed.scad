@@ -73,11 +73,33 @@ module tenon_hole_3d(dim) {
   }
 }
 
+module round_corner(diam=rounded_diam) {
+  difference() {
+    square([diam,diam],center=true);
+
+    translate([-diam/2,-diam/2,0]) {
+      accurate_circle(diam,resolution);
+    }
+  }
+}
+
 module fill_corner_with_round(diam=tool_diam) {
   difference() {
     square([diam,diam],center=true);
     translate([diam/2,diam/2,0]) {
       accurate_circle(diam,resolution);
+    }
+  }
+}
+
+module slot(height) {
+  hull() {
+    for(x=[left,right]) {
+      for(y=[top,bottom]) {
+        translate([(sheet_thickness/2-tool_diam/2)*x,(height/2-tool_diam/2)*y,0]) {
+          accurate_circle(tool_diam,resolution);
+        }
+      }
     }
   }
 }
@@ -174,7 +196,7 @@ module end_board_base() {
   }
 
   module holes() {
-    // to make it more likely that we can get to an outlet, make sure that a step hole overlaps with 12"-18"
+    // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
     rung_hole_width  = platform_width - bed_support_width*4;
     rung_hole_height = 4;
     rung_hole_spacing = 11;
@@ -189,6 +211,16 @@ module end_board_base() {
                 accurate_circle(rounded_diam,resolution);
               }
             }
+          }
+        }
+      }
+    }
+
+    translate([0,end_board_height/2-side_rail_height]) {
+      for(x=[left,right]) {
+        for(i=[0:side_rail_num_tabs-1]) {
+          translate([side_rail_pos_y*x,side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
+            slot(side_rail_tab_height);
           }
         }
       }
@@ -222,17 +254,22 @@ module footboard() {
 
   module holes() {
     // access cutout
-    access_hole_top_width    = platform_width - bed_support_width*2;
-    access_hole_bottom_width = platform_width - bed_support_width*4;
-    access_hole_height       = side_rail_height_above_mattress + mattress_thickness/2;
+    access_hole_width  = platform_width - bed_support_width*4;
+    access_hole_height = side_rail_height_above_mattress + mattress_thickness/2;
     translate([0,end_board_height/2]) {
       hull() {
+        square([access_hole_width,1],center=true);
         for(x=[left,right]) {
-          translate([access_hole_top_width/2*x,.5]) {
-            square([1,1],center=true);
-          }
-          translate([access_hole_bottom_width/2*x,-access_hole_height+rounded_diam/2]) {
+          translate([(access_hole_width/2-rounded_diam/2)*x,-access_hole_height+rounded_diam/2]) {
             accurate_circle(rounded_diam,resolution);
+          }
+        }
+      }
+
+      for(x=[left,right]) {
+        mirror([1-x,0,0]) {
+          translate([-access_hole_width/2,0,0]) {
+            round_corner(rounded_diam);
           }
         }
       }

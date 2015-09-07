@@ -8,7 +8,7 @@ include <util.scad>;
 sheet_thickness = .75;
 tool_diam       = 0.25;
 resolution      = 72;
-rounded_diam    = 1.5;
+rounded_diam    = 1;
 
 mattress_width     = 39;
 extra_space_on_side_of_mattress = 3;
@@ -202,9 +202,9 @@ module end_board_base() {
     // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
     rung_hole_width  = platform_width - bed_support_width*4;
     rung_hole_height = 5;
-    rung_hole_spacing = 12;
-    rung_hole_from_bottom = 11;
-    num_rungs = 2;
+    rung_hole_spacing = 10;
+    rung_hole_from_bottom = 7.5;
+    num_rungs = 3;
     for(rung=[0:num_rungs-1]) {
       hull() {
         translate([0,-end_board_height/2+rung_hole_from_bottom+rung_hole_height/2+rung_hole_spacing*rung]) {
@@ -224,6 +224,21 @@ module end_board_base() {
         for(i=[0:side_rail_num_tabs-1]) {
           translate([side_rail_pos_y*x,side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
             slot(side_rail_tab_height);
+          }
+        }
+      }
+    }
+
+    for(x=[left,right]) {
+      for(y=[top,bottom]) {
+        mirror([1-x,0,0]) {
+          translate([end_board_width/2,end_board_height/2*top,0]) {
+            round_corner(rounded_diam);
+          }
+          translate([end_board_width/2,end_board_height/2*bottom,0]) {
+            rotate([0,0,-90]) {
+              round_corner(rounded_diam);
+            }
           }
         }
       }
@@ -343,7 +358,7 @@ module assembly() {
           translate([leg_brace_pos_x,leg_brace_pos_y*side,leg_brace_pos_z]) {
             rotate([90,0,0]) {
               linear_extrude(height=sheet_thickness,center=true) {
-                leg_brace();
+                //leg_brace();
               }
             }
           }

@@ -5,6 +5,18 @@ include <util.scad>;
 // FIXME: add some level of tolerance compensation (make tab slots marginally larger 1/16 to 1/64 of an inch?)
 // FIXME: create sample fitting piece to test design of tab/slot
 
+// Ideas:
+//   use a 1/4" round router bit to allow tabs to fit into rounded holes created using 1/4" end mill
+//   Use tee nuts to bolt leg brace to side rail?
+//     Something like http://www.homedepot.com/p/The-Hillman-Group-1-4-20-x-5-16-in-Coarse-Stainless-Steel-Pronged-Tee-Nut-5-Pack-883048/202242856
+//   Use a flush trim router bit to get rid of tabs?
+//   Use 1-1/4" screws to attach leg braces and platform supports to side rails and end boards?
+//     glue and screw?
+//     countersink and plug for leg braces?
+//       will need/want a plug cutter
+//       probably not a good idea for plywood?
+
+
 sheet_thickness = .75;
 tool_diam       = 0.25;
 resolution      = 96;
@@ -193,6 +205,14 @@ module side_rail() {
         }
       }
     }
+
+    for(x=[left,right]) {
+      for(i=[1,2]) {
+        translate([(side_rail_length/2-leg_brace_width/2)*x,side_rail_height/2--side_rail_height/4-side_rail_height/2*i,0]) {
+          accurate_circle(tool_diam,resolution);
+        }
+      }
+    }
   }
 
   difference() {
@@ -367,6 +387,11 @@ module leg_brace() {
   }
 
   module holes() {
+    for(i=[0,1]) {
+      translate([0,leg_brace_height/2-side_rail_height/4-side_rail_height/2*i,0]) {
+        accurate_circle(tool_diam,resolution);
+      }
+    }
   }
 
   difference() {

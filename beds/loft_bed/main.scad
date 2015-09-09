@@ -74,9 +74,7 @@ leg_brace_pos_y  = side_rail_pos_y + sheet_thickness + tolerance;
 leg_brace_pos_z  = end_board_pos_z;
 
 access_hole_height = side_rail_height_above_mattress + mattress_thickness*.25;
-ladder_hole_width  = platform_width - leg_brace_width*4;
-ladder_hole_width  = platform_width/2;
-ladder_hole_width  = 20;
+ladder_hole_width  = platform_width*.45;
 ladder_hole_height = 5;
 ladder_hole_spacing = 10;
 ladder_hole_from_bottom = 7.5;

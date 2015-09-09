@@ -21,15 +21,17 @@ module side_rail_sheet() {
       translate([0,(side_rail_height/2+tool_diam/2)*side]) {
         side_rail();
       }
+
+      translate([0,-side_rail_height-tool_diam*2-platform_support_width,0]) {
+        platform_supports();
+      }
     }
   }
 
   module platform_supports() {
     for(side=[left,right]) {
       translate([0,side*(tool_diam/2+platform_support_width/2),0]) {
-        rotate([0,0,0]) {
-          side_rail_platform_support();
-        }
+        side_rail_platform_support();
       }
     }
   }
@@ -47,10 +49,8 @@ module side_rail_sheet() {
   }
 
   translate([0,-3,0]) {
-    side_rails();
-
-    translate([0,-side_rail_height-tool_diam*2-platform_support_width,0]) {
-      platform_supports();
+    translate([-sheet_length/2+cut_margin+sheet_thickness*3+side_rail_length/2,0,0]) {
+      side_rails();
     }
 
     translate([0,side_rail_height+tool_diam*2+leg_brace_width,sheet_thickness*2]) {

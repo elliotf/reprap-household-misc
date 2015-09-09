@@ -60,7 +60,11 @@ leg_brace_pos_z  = end_board_pos_z;
 
 access_hole_height = side_rail_height_above_mattress + mattress_thickness*.75;
 ladder_hole_width  = platform_width - leg_brace_width*4;
-headboard_width    = ladder_hole_width-tool_diam*2;
+
+rung_hole_height = 5;
+rung_hole_spacing = 10;
+rung_hole_from_bottom = 7.5;
+num_rungs = 3;
 
 echo("CLEARANCE UNDER BED: ", clearance_under_bed);
 echo("SIDE RAIL HEIGHT:    ", side_rail_height);
@@ -117,35 +121,9 @@ module slot(height) {
   }
 }
 
-module spring_tab() {
-  tab_length        = 0.5;
-  tab_tongue_length = 0.75;
-  rounded_diam      = tab_tongue_length;
-
-  module body() {
-    translate([tab_length/2,sheet_thickness+tab_tongue_length/2]) {
-      square([tab_length,sheet_thickness],center=true);
-    }
-
-    translate([-tab_spring_width/2,0,0]) {
-      square([tab_spring_width,sheet_thickness*4],center=true);
-    }
-  }
-
-  module holes() {
-    translate([tab_length,sheet_thickness*2,0]) {
-      round_corner();
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module tab(height) {
   rounded_diam = tab_tongue_length;
+  through_sheet = sheet_thickness+tolerance/2;
 
   module body() {
     translate([0,height/2,0]) {
@@ -155,14 +133,14 @@ module tab(height) {
       translate([0,height/2-0.5]) {
         square([2,1],center=true);
       }
-      translate([sheet_thickness+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
+      translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
         accurate_circle(rounded_diam,resolution);
       }
-      square([sheet_thickness*2+tab_tongue_length*2,height-rounded_diam],center=true);
+      square([through_sheet*2+tab_tongue_length*2,height-rounded_diam],center=true);
     }
 
     hull() {
-      translate([sheet_thickness+tab_tongue_length/2,0,0]) {
+      translate([through_sheet+tab_tongue_length/2,0,0]) {
         square([tab_tongue_length,tab_tongue_length],center=true);
         for(x=[left,right]) {
           translate([x*(tab_tongue_length/2-rounded_diam/2),-height/2+rounded_diam/2]) {
@@ -174,11 +152,11 @@ module tab(height) {
   }
 
   module holes() {
-    translate([sheet_thickness/2,-height/2]) {
+    translate([through_sheet/2,-height/2]) {
       hull() {
         for(x=[left,right]) {
           for(y=[top,bottom]) {
-            translate([(sheet_thickness/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2)*y,0]) {
+            translate([(through_sheet/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2)*y,0]) {
               accurate_circle(tool_diam,resolution);
             }
           }
@@ -252,12 +230,13 @@ module end_board_platform_support() {
 }
 
 module platform_sheet() {
+  sheet_width = platform_width - tolerance/2;
   module body() {
-    square([platform_sheet_length,platform_width],center=true);
+    square([platform_sheet_length,sheet_width],center=true);
     for(x=[left,right]) {
       for(y=[front,rear]) {
         mirror([0,1-y,0]) {
-          translate([mattress_length/8*x-tab_tongue_length,-platform_width/2,0]) {
+          translate([mattress_length/8*x-tab_tongue_length,-sheet_width/2,0]) {
             rotate([0,0,-90]) {
               tab(side_rail_tab_height);
             }
@@ -276,73 +255,12 @@ module platform_sheet() {
   }
 }
 
-module bed_support() {
-  module body() {
-    square([bed_support_width,platform_width+sheet_thickness*4],center=true);
-    tab_width = 1;
-
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        mirror([1-x,0,0]) {
-          mirror([0,1-y,0]) {
-            translate([bed_support_width/2,platform_width/2,0]) {
-              spring_tab();
-            }
-          }
-        }
-      }
-    }
-  }
-
-  module holes() {
-    spring_length = 5;
-    for(x=[left,right]) {
-      for(y=[front,rear]) {
-        translate([x*(bed_support_width/2-tab_spring_width*1.75),y*platform_width/2,0]) {
-          hull() {
-            for(side=[front,rear]) {
-              translate([0,spring_length*side,0]) {
-                accurate_circle(tab_spring_width*1.5,resolution);
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module end_board_base() {
   module body() {
     square([end_board_width,end_board_height],center=true);
   }
 
   module holes() {
-    // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
-    rung_hole_width  = ladder_hole_width;
-    rung_hole_height = 5;
-    rung_hole_spacing = 10;
-    rung_hole_from_bottom = 7.5;
-    num_rungs = 3;
-    for(rung=[0:num_rungs-1]) {
-      hull() {
-        translate([0,-end_board_height/2+rung_hole_from_bottom+rung_hole_height/2+rung_hole_spacing*rung]) {
-          for(x=[left,right]) {
-            for(y=[top,bottom]) {
-              translate([x*(rung_hole_width/2 - rounded_diam/2),(rung_hole_height/2-rounded_diam/2)*y]) {
-                accurate_circle(rounded_diam,resolution);
-              }
-            }
-          }
-        }
-      }
-    }
-
     translate([0,end_board_height/2-side_rail_height]) {
       for(x=[left,right]) {
         for(i=[0:side_rail_num_tabs-1]) {
@@ -352,23 +270,6 @@ module end_board_base() {
         }
       }
     }
-
-    /*
-    for(x=[left,right]) {
-      for(y=[top,bottom]) {
-        mirror([1-x,0,0]) {
-          translate([end_board_width/2,end_board_height/2*top,0]) {
-            round_corner(rounded_diam);
-          }
-          translate([end_board_width/2,end_board_height/2*bottom,0]) {
-            rotate([0,0,-90]) {
-              round_corner(rounded_diam);
-            }
-          }
-        }
-      }
-    }
-    */
   }
 
   difference() {
@@ -383,6 +284,18 @@ module headboard() {
   }
 
   module holes() {
+    // to make it more likely that we can get to an outlet, try to make a hole overlaps with 12"-18"
+    hull() {
+      translate([0,-end_board_height/2+12+rung_hole_height/2]) {
+        for(x=[left,right]) {
+          for(y=[top,bottom]) {
+            translate([x*(ladder_hole_width/2 - rounded_diam/2),(rung_hole_height/2-rounded_diam/2)*y]) {
+              accurate_circle(rounded_diam,resolution);
+            }
+          }
+        }
+      }
+    }
   }
 
   difference() {
@@ -412,6 +325,21 @@ module footboard() {
         mirror([1-x,0,0]) {
           translate([-ladder_hole_width/2,0,0]) {
             round_corner(rounded_diam);
+          }
+        }
+      }
+    }
+
+    // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
+    for(rung=[0:num_rungs-1]) {
+      hull() {
+        translate([0,-end_board_height/2+rung_hole_from_bottom+rung_hole_height/2+rung_hole_spacing*rung]) {
+          for(x=[left,right]) {
+            for(y=[top,bottom]) {
+              translate([x*(ladder_hole_width/2 - rounded_diam/2),(rung_hole_height/2-rounded_diam/2)*y]) {
+                accurate_circle(rounded_diam,resolution);
+              }
+            }
           }
         }
       }
@@ -547,20 +475,7 @@ module assembly() {
     }
   }
 
-  // bed supports
-  color("orange") {
-    translate([0,0,bed_support_pos_z]) {
-      position_for_bed_supports() {
-        linear_extrude(height=sheet_thickness,center=true) {
-          //bed_support();
-        }
-      }
-    }
-  }
-
   translate([0,extra_space_on_side_of_mattress/2,mattress_thickness/2]) {
     % cube([mattress_length,mattress_width,mattress_thickness],center=true);
   }
 }
-
-//assembly();

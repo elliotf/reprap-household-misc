@@ -14,7 +14,7 @@ module sheet() {
   }
 }
 
-module sheet_one() {
+module side_rail_sheet() {
   module side_rails() {
     for(side=[left,right]) {
       // side rails
@@ -66,17 +66,19 @@ module sheet_one() {
   % sheet();
 }
 
-module sheet_two() {
-  for(x=[left,right]) {
-    translate([(platform_sheet_length/2+tool_diam/2)*x,0,0]) {
-      platform_sheet();
+module platform_sheets() {
+  translate([-sheet_length/2+cut_margin+platform_sheet_length+tool_diam/2,0,0]) {
+    for(x=[left,right]) {
+      translate([(platform_sheet_length/2+tool_diam/2)*x,0,0]) {
+        platform_sheet();
+      }
     }
   }
 
   % sheet();
 }
 
-module sheet_three() {
+module end_boards() {
   translate([(end_board_height/2+tool_diam/2)*left,0,0]) {
     rotate([0,0,-90]) {
       headboard();
@@ -91,11 +93,11 @@ module sheet_three() {
 }
 
 translate([0,2*(sheet_width + 2),0]) {
-  sheet_one();
+  side_rail_sheet();
 }
 translate([0,1*(sheet_width + 2),0]) {
-  sheet_two();
+  platform_sheets();
 }
 translate([0,0*(sheet_width + 2),0]) {
-  sheet_three();
+  end_boards();
 }

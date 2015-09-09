@@ -1,4 +1,4 @@
-include <loft_bed.scad>;
+include <main.scad>;
 include <util.scad>;
 
 assembly();

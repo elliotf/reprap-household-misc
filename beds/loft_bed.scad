@@ -24,6 +24,8 @@ slot_support_material_width = 1.5;
 tab_tongue_length           = 1;
 tab_spring_width            = 0.75;
 
+platform_sheet_length = mattress_length/2-tolerance;
+
 leg_brace_width  = 5;
 
 num_bed_supports = 3;
@@ -207,34 +209,9 @@ module side_rail() {
 
   module holes() {
     for(i=[-3,-1,1,3]) {
-      /*
-      translate([mattress_length/8*i,-side_rail_height/2+platform_support_width+sheet_thickness/2]) {
-        square([side_rail_tab_height,sheet_thickness],center=true);
-        for(x=[left,right]) {
-          translate([side_rail_tab_height/2*x,-sheet_thickness/2+tool_diam/2]) {
-            accurate_circle(tool_diam,resolution);
-          }
-          translate([(side_rail_tab_height/2-tool_diam/2+overcut_corner)*x,sheet_thickness/2-tool_diam/2+overcut_corner]) {
-            accurate_circle(tool_diam,resolution);
-          }
-        }
-      }
-      */
       translate([mattress_length/8*i,-side_rail_height/2+platform_support_width+sheet_thickness/2]) {
         rotate([0,0,90]) {
           slot(side_rail_tab_height);
-        }
-      }
-    }
-    translate([0,-side_rail_height/2+slot_support_material_width+sheet_thickness/2]) {
-      position_for_bed_supports() {
-        //square([bed_support_width,sheet_thickness],center=true);
-        for(x=[left,right]) {
-          for(y=[top,bottom]) {
-            translate([(bed_support_width/2-tool_diam/2+overcut_corner)*x,(sheet_thickness/2-tool_diam/2+overcut_corner)*y,0]) {
-              //accurate_circle(tool_diam,resolution);
-            }
-          }
         }
       }
     }
@@ -248,6 +225,21 @@ module side_rail() {
 
 module side_rail_platform_support() {
   module body() {
+    square([mattress_length,platform_support_width],center=true);
+  }
+
+  module holes() {
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module end_board_platform_support() {
+  module body() {
+    square([platform_support_width,platform_width-sheet_thickness*3],center=true);
   }
 
   module holes() {
@@ -261,7 +253,7 @@ module side_rail_platform_support() {
 
 module platform_sheet() {
   module body() {
-    square([mattress_length/2-tolerance,platform_width],center=true);
+    square([platform_sheet_length,platform_width],center=true);
     for(x=[left,right]) {
       for(y=[front,rear]) {
         mirror([0,1-y,0]) {
@@ -523,7 +515,7 @@ module assembly() {
       translate([0,(side_rail_pos_y-sheet_thickness)*side,side_rail_pos_z-side_rail_height/2+platform_support_width/2]) {
         rotate([90,0,0]) {
           linear_extrude(height=sheet_thickness,center=true) {
-            square([mattress_length,platform_support_width],center=true);
+            side_rail_platform_support();
           }
         }
       }
@@ -535,7 +527,7 @@ module assembly() {
       translate([side*(mattress_length/2-sheet_thickness/2),0,side_rail_pos_z-side_rail_height/2+platform_support_width/2]) {
         rotate([0,90,0]) {
           linear_extrude(height=sheet_thickness,center=true) {
-            square([platform_support_width,platform_width-sheet_thickness*3],center=true);
+            end_board_platform_support();
           }
         }
       }
@@ -569,4 +561,4 @@ module assembly() {
   }
 }
 
-assembly();
+//assembly();

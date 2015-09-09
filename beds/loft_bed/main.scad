@@ -8,7 +8,7 @@ include <util.scad>;
 sheet_thickness = .75;
 tool_diam       = 0.25;
 resolution      = 96;
-rounded_diam    = 1;
+rounded_diam    = 2;
 tolerance       = 1 / 16;
 
 overcut_corner = sqrt(pow(tool_diam/2,2)/2)/2;
@@ -48,14 +48,14 @@ side_rail_pos_y                 = platform_width/2 + sheet_thickness/2;
 side_rail_pos_z                 = mattress_thickness + side_rail_height_above_mattress - side_rail_height/2;
 
 end_board_height_above_side_board = 0;
-end_board_width                   = side_rail_pos_y*2 + sheet_thickness + 2;
+end_board_width                   = side_rail_pos_y*2 + sheet_thickness*3 + tolerance*2;
 end_board_height                  = side_rail_height + end_board_height_above_side_board + clearance_under_bed;
 end_board_pos_x                   = mattress_length/2 + sheet_thickness/2;
 end_board_pos_z                   = side_rail_pos_z + side_rail_height/2 + end_board_height_above_side_board - end_board_height/2;
 
 leg_brace_height = end_board_height;
 leg_brace_pos_x  = end_board_pos_x - sheet_thickness/2 - leg_brace_width/2;
-leg_brace_pos_y  = side_rail_pos_y + sheet_thickness;
+leg_brace_pos_y  = side_rail_pos_y + sheet_thickness + tolerance;
 leg_brace_pos_z  = end_board_pos_z;
 
 access_hole_height = side_rail_height_above_mattress + mattress_thickness*.75;
@@ -110,7 +110,7 @@ module slot(height) {
     for(x=[left,right]) {
       for(y=[top,bottom]) {
         translate([(sheet_thickness/2-tool_diam/2)*x,(height/2-tool_diam/2)*y,0]) {
-          accurate_circle(tool_diam,resolution);
+          accurate_circle(tool_diam+tolerance,resolution);
         }
       }
     }
@@ -353,6 +353,7 @@ module end_board_base() {
       }
     }
 
+    /*
     for(x=[left,right]) {
       for(y=[top,bottom]) {
         mirror([1-x,0,0]) {
@@ -367,6 +368,7 @@ module end_board_base() {
         }
       }
     }
+    */
   }
 
   difference() {

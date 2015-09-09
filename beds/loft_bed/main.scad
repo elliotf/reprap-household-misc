@@ -6,7 +6,10 @@ include <util.scad>;
 // FIXME: create sample fitting piece to test design of tab/slot
 
 // Ideas:
-//   use a 1/4" round router bit to allow tabs to fit into rounded holes created using 1/4" end mill
+//   Gutter shelf along length of wall by bed?
+//     http://www.homedepot.com/p/Amerimax-Home-Products-10-ft-White-Traditional-Vinyl-Gutter-M0573/100079740
+//     http://www.homedepot.com/p/Amerimax-Home-Products-White-Vinyl-K-Style-End-Cap-Set-M0611/100055796
+//   Use a 1/4" round router bit to allow tabs to fit into rounded holes created using 1/4" end mill
 //   Use tee nuts to bolt leg brace to side rail?
 //     Something like http://www.homedepot.com/p/The-Hillman-Group-1-4-20-x-5-16-in-Coarse-Stainless-Steel-Pronged-Tee-Nut-5-Pack-883048/202242856
 //   Use a flush trim router bit to get rid of tabs?
@@ -70,13 +73,16 @@ leg_brace_pos_x  = end_board_pos_x - sheet_thickness/2 - leg_brace_width/2;
 leg_brace_pos_y  = side_rail_pos_y + sheet_thickness + tolerance;
 leg_brace_pos_z  = end_board_pos_z;
 
-access_hole_height = side_rail_height_above_mattress + mattress_thickness*.75;
+access_hole_height = side_rail_height_above_mattress + mattress_thickness*.25;
 ladder_hole_width  = platform_width - leg_brace_width*4;
-
-rung_hole_height = 5;
-rung_hole_spacing = 10;
-rung_hole_from_bottom = 7.5;
+ladder_hole_width  = platform_width/2;
+ladder_hole_width  = 20;
+ladder_hole_height = 5;
+ladder_hole_spacing = 10;
+ladder_hole_from_bottom = 7.5;
 num_rungs = 3;
+
+end_board_platform_support_tab_spacing = ladder_hole_width-side_rail_tab_height;
 
 echo("CLEARANCE UNDER BED: ", clearance_under_bed);
 echo("SIDE RAIL HEIGHT:    ", side_rail_height);
@@ -121,11 +127,11 @@ module fill_corner_with_round(diam=tool_diam) {
   }
 }
 
-module slot(height) {
+module slot(height,width=sheet_thickness) {
   hull() {
     for(x=[left,right]) {
       for(y=[top,bottom]) {
-        translate([(sheet_thickness/2-tool_diam/2)*x,(height/2-tool_diam/2)*y,0]) {
+        translate([(width/2-tool_diam/2)*x,(height/2-tool_diam/2)*y,0]) {
           accurate_circle(tool_diam+tolerance,resolution);
         }
       }
@@ -235,20 +241,6 @@ module side_rail_platform_support() {
   }
 }
 
-module end_board_platform_support() {
-  module body() {
-    square([platform_support_width,platform_width-sheet_thickness*3],center=true);
-  }
-
-  module holes() {
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module platform_sheet() {
   sheet_width = platform_width - tolerance/2;
   module body() {
@@ -259,6 +251,28 @@ module platform_sheet() {
           translate([mattress_length/8*x-tab_tongue_length,-sheet_width/2,0]) {
             rotate([0,0,-90]) {
               tab(side_rail_tab_height);
+            }
+          }
+        }
+      }
+    }
+
+    rounded_diam = sheet_thickness;
+    for(y=[left,right]) {
+      translate([platform_sheet_length/2,end_board_platform_support_tab_spacing/2*y,0]) {
+        hull() {
+          square([sheet_thickness,side_rail_tab_height],center=true);
+
+          for(side=[left,right]) {
+            translate([sheet_thickness-rounded_diam/4,(side_rail_tab_height/2-rounded_diam/2)*side,0]) {
+              accurate_circle(rounded_diam,resolution);
+            }
+          }
+        }
+        for(side=[left,right]) {
+          translate([0,(side_rail_tab_height/2)*side,0]) {
+            rotate([0,0,135*(1-side)]) {
+              fill_corner_with_round();
             }
           }
         }
@@ -290,6 +304,14 @@ module end_board_base() {
         }
       }
     }
+
+    for(side=[left,right]) {
+      translate([end_board_platform_support_tab_spacing/2*side,end_board_height/2-side_rail_height+platform_support_width+sheet_thickness,0]) {
+        rotate([0,0,90]) {
+          slot(side_rail_tab_height,sheet_thickness*2);
+        }
+      }
+    }
   }
 
   difference() {
@@ -305,12 +327,15 @@ module headboard() {
 
   module holes() {
     // to make it more likely that we can get to an outlet, try to make a hole overlaps with 12"-18"
-    hull() {
-      translate([0,-end_board_height/2+12+rung_hole_height/2]) {
-        for(x=[left,right]) {
-          for(y=[top,bottom]) {
-            translate([x*(ladder_hole_width/2 - rounded_diam/2),(rung_hole_height/2-rounded_diam/2)*y]) {
-              accurate_circle(rounded_diam,resolution);
+    hole_width = end_board_width/4;
+    for(side=[left,right]) {
+      hull() {
+        translate([end_board_width/5*side,-end_board_height/2+12+ladder_hole_height/2]) {
+          for(x=[left,right]) {
+            for(y=[top,bottom]) {
+              translate([x*(hole_width/2 - rounded_diam/2),(ladder_hole_height/2-rounded_diam/2)*y]) {
+                accurate_circle(rounded_diam,resolution);
+              }
             }
           }
         }
@@ -353,10 +378,10 @@ module footboard() {
     // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
     for(rung=[0:num_rungs-1]) {
       hull() {
-        translate([0,-end_board_height/2+rung_hole_from_bottom+rung_hole_height/2+rung_hole_spacing*rung]) {
+        translate([0,-end_board_height/2+ladder_hole_from_bottom+ladder_hole_height/2+ladder_hole_spacing*rung]) {
           for(x=[left,right]) {
             for(y=[top,bottom]) {
-              translate([x*(ladder_hole_width/2 - rounded_diam/2),(rung_hole_height/2-rounded_diam/2)*y]) {
+              translate([x*(ladder_hole_width/2 - rounded_diam/2),(ladder_hole_height/2-rounded_diam/2)*y]) {
                 accurate_circle(rounded_diam,resolution);
               }
             }
@@ -476,25 +501,15 @@ module assembly() {
       }
     }
   }
-  // and end supports
-  color("slateblue") {
-    for(side=[left,right]) {
-      translate([side*(mattress_length/2-sheet_thickness/2),0,side_rail_pos_z-side_rail_height/2+platform_support_width/2]) {
-        rotate([0,90,0]) {
-          linear_extrude(height=sheet_thickness,center=true) {
-            end_board_platform_support();
-          }
-        }
-      }
-    }
-  }
 
   // platform sheets
   color("teal") {
     for(side=[left,right]) {
-      translate([-mattress_length/4*side,0,-sheet_thickness/2]) {
-        linear_extrude(height=sheet_thickness,center=true) {
-          platform_sheet();
+      translate([mattress_length/4*side,0,-sheet_thickness/2]) {
+        rotate([0,0,90-90*side]) {
+          linear_extrude(height=sheet_thickness,center=true) {
+            platform_sheet();
+          }
         }
       }
     }

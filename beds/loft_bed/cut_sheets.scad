@@ -61,7 +61,7 @@ module side_rail_sheet() {
   % sheet();
 }
 
-module head_side() {
+module head_sheet() {
   translate([-sheet_length/2+cut_margin+end_board_height/2,0,0]) {
     rotate([0,0,90]) {
       headboard();
@@ -73,7 +73,7 @@ module head_side() {
   % sheet();
 }
 
-module foot_side() {
+module foot_sheet() {
   translate([-sheet_length/2+cut_margin+end_board_height/2,0,0]) {
     rotate([0,0,90]) {
       footboard();
@@ -89,8 +89,8 @@ translate([0,1*(sheet_width + 2),0]) {
   side_rail_sheet();
 }
 translate([0,0*(sheet_width + 2),0]) {
-  head_side();
+  head_sheet();
 }
 translate([0,-1*(sheet_width + 2),0]) {
-  foot_side();
+  foot_sheet();
 }

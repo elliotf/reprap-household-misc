@@ -61,29 +61,25 @@ module side_rail_sheet() {
   % sheet();
 }
 
-module platform_sheets() {
-  translate([-sheet_length/2+cut_margin+sheet_thickness*2+platform_sheet_length+tool_diam/2,0,0]) {
-    for(x=[left,right]) {
-      translate([(platform_sheet_length/2+tool_diam/2)*x,0,0]) {
-        rotate([0,0,90*(1-x)]) {
-          platform_sheet();
-        }
-      }
+module head_side() {
+  translate([-sheet_length/2+cut_margin+end_board_height/2,0,0]) {
+    rotate([0,0,90]) {
+      headboard();
+    }
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam,0,0]) {
+      platform_sheet();
     }
   }
-
   % sheet();
 }
 
-module end_boards() {
-  translate([(end_board_height/2+tool_diam/2)*left,0,0]) {
-    rotate([0,0,-90]) {
-      headboard();
-    }
-  }
-  translate([(end_board_height/2+tool_diam/2)*right,0,0]) {
-    rotate([0,0,-90]) {
+module foot_side() {
+  translate([-sheet_length/2+cut_margin+end_board_height/2,0,0]) {
+    rotate([0,0,90]) {
       footboard();
+    }
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam,0,0]) {
+      platform_sheet();
     }
   }
   % sheet();
@@ -93,8 +89,8 @@ translate([0,1*(sheet_width + 2),0]) {
   side_rail_sheet();
 }
 translate([0,0*(sheet_width + 2),0]) {
-  platform_sheets();
+  head_side();
 }
 translate([0,-1*(sheet_width + 2),0]) {
-  end_boards();
+  foot_side();
 }

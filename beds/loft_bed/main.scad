@@ -19,54 +19,55 @@ include <util.scad>;
 //       will need/want a plug cutter
 //       probably not a good idea for plywood?
 
+multiplier = 25.4; // make things in mm
 
-sheet_thickness = .75;
-tool_diam       = 0.25;
-resolution      = 96;
-rounded_diam    = 2;
-tolerance       = 1 / 16;
+sheet_thickness = .75 * multiplier;
+tool_diam       = 0.25 * multiplier;
+resolution      = 32;
+rounded_diam    = 2 * multiplier;
+tolerance       = 1 / 16 * multiplier;
 
 overcut_corner = sqrt(pow(tool_diam/2,2)/2)/2;
 
-mattress_width     = 39;
-extra_space_on_side_of_mattress = 3.5;
+mattress_width     = 39 * multiplier;
+mattress_length    = 75 * multiplier;
+mattress_thickness = 4 * multiplier;
+extra_space_on_side_of_mattress = 3 * multiplier;
+extra_space_on_end_of_mattress = 2 * multiplier;
 platform_width     = mattress_width + extra_space_on_side_of_mattress;
-mattress_length    = 75;
-mattress_thickness = 4;
+platform_length    = mattress_length + extra_space_on_end_of_mattress;
 
-platform_support_width      = 1.5;
-slot_support_material_width = 1.5;
-tab_tongue_length           = 1;
-tab_spring_width            = 0.75;
+platform_support_width      = 1.5 * multiplier;
+slot_support_material_width = 1.5 * multiplier;
+tab_tongue_length           = 1 * multiplier;
+tab_spring_width            = 0.75 * multiplier;
 
-platform_sheet_length = mattress_length/2-tolerance;
+platform_sheet_length = platform_length/2-tolerance;
 
-leg_brace_width  = 5;
+leg_brace_width  = 5 * multiplier;
 
-num_bed_supports = 3;
-bed_support_width  = 8;
-bed_support_spacing = (mattress_length - bed_support_width*2 - tab_tongue_length*4) / (num_bed_supports - 1);
-bed_support_pos_z   = -sheet_thickness*1.5;
+height_of_adult_sitting_cross_legged = 37 * multiplier;
+height_below_kitchen_table           = 28 * multiplier;
+clearance_under_bed                  = height_below_kitchen_table + 10 * multiplier;
 
-height_of_adult_sitting_cross_legged = 37;
-height_below_kitchen_table           = 28;
-clearance_under_bed                  = height_below_kitchen_table + 6;
-
-side_rail_height_above_mattress = 6.5;
+side_rail_height_above_mattress = 6.5 * multiplier;
 side_rail_height_below_mattress = sheet_thickness + slot_support_material_width;
 side_rail_height                = mattress_thickness + side_rail_height_above_mattress + side_rail_height_below_mattress;
-side_rail_length                = mattress_length;
+side_rail_length                = platform_length;
 
-side_rail_tab_height            = 3.5;
+side_rail_tab_height            = 3.5 * multiplier;
 side_rail_num_tabs              = 2;
 side_rail_pos_y                 = platform_width/2 + sheet_thickness/2;
 side_rail_pos_z                 = mattress_thickness + side_rail_height_above_mattress - side_rail_height/2;
 
-end_board_height_above_side_board = 0;
-end_board_width                   = side_rail_pos_y*2 + sheet_thickness*3 + tolerance*2;
+end_board_height_above_side_board = 1*multiplier;
+end_board_width                   = side_rail_pos_y*2 + sheet_thickness*4 + tolerance*2;
 end_board_height                  = side_rail_height + end_board_height_above_side_board + clearance_under_bed;
-end_board_pos_x                   = mattress_length/2 + sheet_thickness/2;
+end_board_pos_x                   = platform_length/2 + sheet_thickness/2;
 end_board_pos_z                   = side_rail_pos_z + side_rail_height/2 + end_board_height_above_side_board - end_board_height/2;
+
+bottom_rail_dist_from_end       = 1*25.4;
+bottom_rail_pos_z               = end_board_pos_z - end_board_height/2 + side_rail_height/2 + bottom_rail_dist_from_end;
 
 leg_brace_height = end_board_height;
 leg_brace_pos_x  = end_board_pos_x - sheet_thickness/2 - leg_brace_width/2;
@@ -74,10 +75,10 @@ leg_brace_pos_y  = side_rail_pos_y + sheet_thickness + tolerance;
 leg_brace_pos_z  = end_board_pos_z;
 
 access_hole_height = side_rail_height_above_mattress + mattress_thickness*.25;
-ladder_hole_width  = platform_width*.45;
-ladder_hole_height = 5;
-ladder_hole_spacing = 10;
-ladder_hole_from_bottom = 7.5;
+ladder_hole_width  = 20*multiplier;
+ladder_hole_height = 5 * multiplier;
+ladder_hole_spacing = 10 * multiplier;
+ladder_hole_from_bottom = 9.5 * multiplier;
 num_rungs = 3;
 
 end_board_platform_support_tab_spacing = ladder_hole_width-side_rail_tab_height;
@@ -126,6 +127,8 @@ module fill_corner_with_round(diam=tool_diam) {
 }
 
 module slot(height,width=sheet_thickness) {
+  square([width+tolerance,height+tolerance],center=true);
+  /*
   hull() {
     for(x=[left,right]) {
       for(y=[top,bottom]) {
@@ -135,6 +138,7 @@ module slot(height,width=sheet_thickness) {
       }
     }
   }
+  */
 }
 
 module tab(height) {
@@ -203,7 +207,7 @@ module side_rail() {
 
   module holes() {
     for(i=[-3,-1,1,3]) {
-      translate([mattress_length/8*i,-side_rail_height/2+platform_support_width+sheet_thickness/2]) {
+      translate([side_rail_length/8*i,-side_rail_height/2+platform_support_width+sheet_thickness/2]) {
         rotate([0,0,90]) {
           slot(side_rail_tab_height);
         }
@@ -213,7 +217,7 @@ module side_rail() {
     for(x=[left,right]) {
       for(i=[1,2]) {
         translate([(side_rail_length/2-leg_brace_width/2)*x,side_rail_height/2--side_rail_height/4-side_rail_height/2*i,0]) {
-          accurate_circle(tool_diam,resolution);
+          //accurate_circle(tool_diam,resolution);
         }
       }
     }
@@ -227,7 +231,7 @@ module side_rail() {
 
 module side_rail_platform_support() {
   module body() {
-    square([mattress_length,platform_support_width],center=true);
+    square([side_rail_length,platform_support_width],center=true);
   }
 
   module holes() {
@@ -246,7 +250,7 @@ module platform_sheet() {
     for(x=[left,right]) {
       for(y=[front,rear]) {
         mirror([0,1-y,0]) {
-          translate([mattress_length/8*x-tab_tongue_length,-sheet_width/2,0]) {
+          translate([side_rail_length/8*x-tab_tongue_length,-sheet_width/2,0]) {
             rotate([0,0,-90]) {
               tab(side_rail_tab_height);
             }
@@ -289,24 +293,40 @@ module platform_sheet() {
 
 module end_board_base() {
   module body() {
-    square([end_board_width,end_board_height],center=true);
+    hull() {
+      for(x=[left,right]) {
+        for(y=[top,bottom]) {
+          translate([(end_board_width/2-rounded_diam/2)*x,(end_board_height/2-rounded_diam/2)*y,0]) {
+            accurate_circle(rounded_diam,resolution);
+          }
+        }
+      }
+    }
   }
 
   module holes() {
-    translate([0,end_board_height/2-side_rail_height]) {
-      for(x=[left,right]) {
-        for(i=[0:side_rail_num_tabs-1]) {
-          translate([side_rail_pos_y*x,side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
-            slot(side_rail_tab_height);
+    top_pos    = end_board_height/2-side_rail_height-end_board_height_above_side_board;
+    bottom_pos = -end_board_height/2+bottom_rail_dist_from_end;
+    for(end=[top_pos,bottom_pos]) {
+      translate([0,end]) {
+        for(x=[left,right]) {
+          for(i=[0:side_rail_num_tabs-1]) {
+            translate([side_rail_pos_y*x,side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
+              slot(side_rail_tab_height);
+            }
           }
         }
       }
     }
 
-    for(side=[left,right]) {
-      translate([end_board_platform_support_tab_spacing/2*side,end_board_height/2-side_rail_height+platform_support_width+sheet_thickness,0]) {
-        rotate([0,0,90]) {
-          slot(side_rail_tab_height,sheet_thickness*2);
+    top_platform_pos    = end_board_height/2-side_rail_height+platform_support_width+sheet_thickness-end_board_height_above_side_board;
+    bottom_platform_pos = -end_board_height/2+bottom_rail_dist_from_end+platform_support_width+sheet_thickness;
+    for(end=[top_platform_pos,bottom_platform_pos]) {
+      for(side=[left,right]) {
+        translate([end_board_platform_support_tab_spacing/2*side,end,0]) {
+          rotate([0,0,90]) {
+            slot(side_rail_tab_height,sheet_thickness*2);
+          }
         }
       }
     }
@@ -324,11 +344,24 @@ module headboard() {
   }
 
   module holes() {
+    // a fun hole
+    translate([0,end_board_height/2-end_board_height_above_side_board-side_rail_height*1.75,0]) {
+      hull() {
+        for(x=[left,right]) {
+          for(y=[top,bottom]) {
+            translate([x*(ladder_hole_width/2-rounded_diam/2),y*(ladder_hole_height/2-rounded_diam/2),0]) {
+              accurate_circle(rounded_diam,resolution);
+            }
+          }
+        }
+      }
+    }
     // to make it more likely that we can get to an outlet, try to make a hole overlaps with 12"-18"
+    /*
     hole_width = end_board_width/4;
     for(side=[left,right]) {
       hull() {
-        translate([end_board_width/5*side,-end_board_height/2+12+ladder_hole_height/2]) {
+        translate([end_board_width/5*side,-end_board_height/2+12 * multiplier+ladder_hole_height/2]) {
           for(x=[left,right]) {
             for(y=[top,bottom]) {
               translate([x*(hole_width/2 - rounded_diam/2),(ladder_hole_height/2-rounded_diam/2)*y]) {
@@ -339,6 +372,7 @@ module headboard() {
         }
       }
     }
+    */
   }
 
   difference() {
@@ -353,8 +387,9 @@ module footboard() {
   }
 
   module holes() {
+    ladder_offset = 6*multiplier;
     // access cutout
-    translate([0,end_board_height/2]) {
+    translate([ladder_offset,end_board_height/2]) {
       hull() {
         square([ladder_hole_width,1],center=true);
         for(x=[left,right]) {
@@ -376,7 +411,7 @@ module footboard() {
     // to make it more likely that we can get to an outlet, try to make a step hole overlaps with 12"-18"
     for(rung=[0:num_rungs-1]) {
       hull() {
-        translate([0,-end_board_height/2+ladder_hole_from_bottom+ladder_hole_height/2+ladder_hole_spacing*rung]) {
+        translate([ladder_offset,-end_board_height/2+ladder_hole_from_bottom+ladder_hole_height/2+ladder_hole_spacing*rung]) {
           for(x=[left,right]) {
             for(y=[top,bottom]) {
               translate([x*(ladder_hole_width/2 - rounded_diam/2),(ladder_hole_height/2-rounded_diam/2)*y]) {
@@ -423,14 +458,6 @@ module leg_brace() {
   }
 }
 
-module position_for_bed_supports() {
-  for(i=[0:num_bed_supports-1]) {
-    translate([-mattress_length/2+tab_tongue_length+leg_brace_width+bed_support_width/2+bed_support_spacing*(i),0]) {
-      children();
-    }
-  }
-}
-
 module assembly() {
   // head board
   color("lightgreen") {
@@ -466,7 +493,7 @@ module assembly() {
           translate([leg_brace_pos_x,leg_brace_pos_y*side,leg_brace_pos_z]) {
             rotate([90,0,0]) {
               linear_extrude(height=sheet_thickness,center=true) {
-                leg_brace();
+                //leg_brace();
               }
             }
           }
@@ -483,6 +510,14 @@ module assembly() {
           linear_extrude(height=sheet_thickness,center=true) {
             side_rail();
           }
+        }
+      }
+    }
+
+    translate([0,side_rail_pos_y,bottom_rail_pos_z]) {
+      rotate([90,0,0]) {
+        linear_extrude(height=sheet_thickness,center=true) {
+          side_rail();
         }
       }
     }
@@ -503,7 +538,7 @@ module assembly() {
   // platform sheets
   color("teal") {
     for(side=[left,right]) {
-      translate([mattress_length/4*side,0,-sheet_thickness/2]) {
+      translate([side_rail_length/4*side,0,-sheet_thickness/2]) {
         rotate([0,0,90-90*side]) {
           linear_extrude(height=sheet_thickness,center=true) {
             platform_sheet();

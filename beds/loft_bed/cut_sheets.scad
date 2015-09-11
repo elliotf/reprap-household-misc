@@ -1,10 +1,10 @@
 include <main.scad>;
 include <util.scad>;
 
-sheet_width  = 48;
-sheet_length = 96;
+sheet_width  = 48*25.4;
+sheet_length = 96*25.4;
 
-cut_margin = 1;
+cut_margin = 1*25.4;
 
 // sized in imperial inches
 
@@ -41,7 +41,7 @@ module side_rail_sheet() {
       for(y=[front,rear]) {
         translate([x*(leg_brace_height/2+tool_diam/2),y*(leg_brace_width/2+tool_diam/2)]) {
           rotate([0,0,90*y]) {
-            leg_brace();
+            //leg_brace();
           }
         }
       }
@@ -85,12 +85,12 @@ module foot_sheet() {
   % sheet();
 }
 
-translate([0,1*(sheet_width + 2),0]) {
+translate([0,1*(sheet_width + 2*25.4),0]) {
   side_rail_sheet();
 }
-translate([0,0*(sheet_width + 2),0]) {
+translate([0,0*(sheet_width + 2*25.4),0]) {
   head_sheet();
 }
-translate([0,-1*(sheet_width + 2),0]) {
+translate([0,-1*(sheet_width + 2*25.4),0]) {
   foot_sheet();
 }

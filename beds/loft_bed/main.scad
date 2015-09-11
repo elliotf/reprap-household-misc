@@ -19,11 +19,12 @@ include <util.scad>;
 //       will need/want a plug cutter
 //       probably not a good idea for plywood?
 
+multiplier = 1;    // things in inches
 multiplier = 25.4; // make things in mm
 
 sheet_thickness = .75 * multiplier;
 tool_diam       = 0.25 * multiplier;
-resolution      = 32;
+resolution      = 20;
 rounded_diam    = 2 * multiplier;
 tolerance       = 1 / 16 * multiplier;
 
@@ -48,7 +49,7 @@ leg_brace_width  = 5 * multiplier;
 
 height_of_adult_sitting_cross_legged = 37 * multiplier;
 height_below_kitchen_table           = 28 * multiplier;
-clearance_under_bed                  = height_below_kitchen_table + 10 * multiplier;
+clearance_under_bed                  = height_below_kitchen_table + 7.5 * multiplier;
 
 side_rail_height_above_mattress = 6.5 * multiplier;
 side_rail_height_below_mattress = sheet_thickness + slot_support_material_width;
@@ -74,11 +75,11 @@ leg_brace_pos_x  = end_board_pos_x - sheet_thickness/2 - leg_brace_width/2;
 leg_brace_pos_y  = side_rail_pos_y + sheet_thickness + tolerance;
 leg_brace_pos_z  = end_board_pos_z;
 
-access_hole_height = side_rail_height_above_mattress + mattress_thickness*.25;
+access_hole_height = side_rail_height_above_mattress + mattress_thickness*.3 + end_board_height_above_side_board;
 ladder_hole_width  = 20*multiplier;
 ladder_hole_height = 5 * multiplier;
 ladder_hole_spacing = 10 * multiplier;
-ladder_hole_from_bottom = 9.5 * multiplier;
+ladder_hole_from_bottom = 8.5 * multiplier;
 num_rungs = 3;
 
 end_board_platform_support_tab_spacing = ladder_hole_width-side_rail_tab_height;
@@ -345,11 +346,13 @@ module headboard() {
 
   module holes() {
     // a fun hole
-    translate([0,end_board_height/2-end_board_height_above_side_board-side_rail_height*1.75,0]) {
+    fun_hole_width  = end_board_width/2;
+    fun_hole_height = 12*multiplier;
+    translate([0,end_board_height/2-end_board_height_above_side_board-side_rail_height*1.25-fun_hole_height/2,0]) {
       hull() {
         for(x=[left,right]) {
           for(y=[top,bottom]) {
-            translate([x*(ladder_hole_width/2-rounded_diam/2),y*(ladder_hole_height/2-rounded_diam/2),0]) {
+            translate([x*(fun_hole_width/2-rounded_diam/2),y*(fun_hole_height/2-rounded_diam/2),0]) {
               accurate_circle(rounded_diam,resolution);
             }
           }
@@ -422,6 +425,18 @@ module footboard() {
         }
       }
     }
+
+    /*
+    translate([0,-side_rail_height/2,0]) {
+      for(x=[left,right]) {
+        for(i=[0:side_rail_num_tabs-1]) {
+          translate([(side_rail_pos_y-sheet_thickness)*x,side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
+            slot(side_rail_tab_height);
+          }
+        }
+      }
+    }
+    */
   }
 
   difference() {

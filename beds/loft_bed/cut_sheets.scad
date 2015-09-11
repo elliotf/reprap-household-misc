@@ -16,7 +16,7 @@ module sheet() {
 
 module side_rail_sheet() {
   module side_rails() {
-    for(side=[left,right]) {
+    for(side=[left,right,3]) {
       // side rails
       translate([0,(side_rail_height/2+tool_diam/2)*side]) {
         side_rail();
@@ -48,7 +48,7 @@ module side_rail_sheet() {
     }
   }
 
-  translate([0,-3,0]) {
+  translate([0,-5*multiplier,0]) {
     translate([-sheet_length/2+cut_margin+sheet_thickness*3+side_rail_length/2,0,0]) {
       side_rails();
     }

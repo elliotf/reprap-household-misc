@@ -19,8 +19,8 @@ include <util.scad>;
 //       will need/want a plug cutter
 //       probably not a good idea for plywood?
 
-multiplier = 1;    // things in inches
 multiplier = 25.4; // make things in mm
+multiplier = 1;    // things in inches
 
 sheet_thickness = .75 * multiplier;
 tool_diam       = 0.25 * multiplier;
@@ -67,7 +67,7 @@ end_board_height                  = side_rail_height + end_board_height_above_si
 end_board_pos_x                   = platform_length/2 + sheet_thickness/2;
 end_board_pos_z                   = side_rail_pos_z + side_rail_height/2 + end_board_height_above_side_board - end_board_height/2;
 
-bottom_rail_dist_from_end       = 1*25.4;
+bottom_rail_dist_from_end       = 1*multiplier;
 bottom_rail_pos_z               = end_board_pos_z - end_board_height/2 + side_rail_height/2 + bottom_rail_dist_from_end;
 
 leg_brace_height = end_board_height;

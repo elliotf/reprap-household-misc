@@ -18,11 +18,11 @@ module side_rail_sheet() {
   module side_rails() {
     for(side=[left,right,3]) {
       // side rails
-      translate([0,(side_rail_height/2+tool_diam/2)*side]) {
+      translate([0,(side_rail_height/2+tool_diam*0.51)*side]) {
         side_rail();
       }
 
-      translate([0,-side_rail_height-tool_diam*2-platform_support_width,0]) {
+      translate([0,-side_rail_height-tool_diam*3-platform_support_width,0]) {
         platform_supports();
       }
     }
@@ -30,7 +30,7 @@ module side_rail_sheet() {
 
   module platform_supports() {
     for(side=[left,right]) {
-      translate([0,side*(tool_diam/2+platform_support_width/2),0]) {
+      translate([0,side*(tool_diam*.51+platform_support_width/2),0]) {
         side_rail_platform_support();
       }
     }
@@ -66,7 +66,7 @@ module head_sheet() {
     rotate([0,0,90]) {
       headboard();
     }
-    translate([end_board_height/2+platform_sheet_length/2+tool_diam,0,0]) {
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam*1.1,0,0]) {
       platform_sheet();
     }
   }
@@ -78,7 +78,7 @@ module foot_sheet() {
     rotate([0,0,90]) {
       footboard();
     }
-    translate([end_board_height/2+platform_sheet_length/2+tool_diam,0,0]) {
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam*1.1,0,0]) {
       platform_sheet();
     }
   }

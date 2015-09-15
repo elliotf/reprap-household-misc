@@ -148,14 +148,15 @@ module tab(height) {
 
   module body() {
     translate([0,height/2,0]) {
-      fill_corner_with_round();
+      //fill_corner_with_round();
     }
     hull() {
       translate([0,height/2-0.5]) {
         square([2,1],center=true);
       }
       translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
-        accurate_circle(rounded_diam,resolution);
+        //accurate_circle(rounded_diam,resolution);
+        accurate_circle(rounded_diam,4);
       }
       square([through_sheet*2+tab_tongue_length*2,height-rounded_diam],center=true);
     }
@@ -165,7 +166,8 @@ module tab(height) {
         square([tab_tongue_length,tab_tongue_length],center=true);
         for(x=[left,right]) {
           translate([x*(tab_tongue_length/2-rounded_diam/2),-height/2+rounded_diam/2]) {
-            accurate_circle(rounded_diam,resolution);
+            //accurate_circle(rounded_diam,resolution);
+            accurate_circle(rounded_diam,4);
           }
         }
       }
@@ -178,7 +180,8 @@ module tab(height) {
         for(x=[left,right]) {
           for(y=[top,bottom]) {
             translate([(through_sheet/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2)*y,0]) {
-              accurate_circle(tool_diam,resolution);
+              //accurate_circle(tool_diam,resolution);
+              accurate_circle(tool_diam,4);
             }
           }
         }

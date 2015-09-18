@@ -66,7 +66,7 @@ module head_sheet() {
     rotate([0,0,90]) {
       headboard();
     }
-    translate([end_board_height/2+platform_sheet_length/2+tool_diam*1.1,0,0]) {
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam*2.1,0,0]) {
       platform_sheet();
     }
   }
@@ -78,7 +78,7 @@ module foot_sheet() {
     rotate([0,0,90]) {
       footboard();
     }
-    translate([end_board_height/2+platform_sheet_length/2+tool_diam*1.1,0,0]) {
+    translate([end_board_height/2+platform_sheet_length/2+tool_diam*2.1,0,0]) {
       platform_sheet();
     }
   }

@@ -19,8 +19,8 @@ include <util.scad>;
 //       will need/want a plug cutter
 //       probably not a good idea for plywood?
 
-multiplier = 25.4; // make things in mm
 multiplier = 1;    // things in inches
+multiplier = 25.4; // make things in mm
 
 sheet_thickness = .75 * multiplier;
 tool_diam       = 0.25 * multiplier;
@@ -155,8 +155,8 @@ module tab(height) {
         square([2,1],center=true);
       }
       translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
-        //accurate_circle(rounded_diam,resolution);
-        accurate_circle(rounded_diam,4);
+        accurate_circle(rounded_diam,resolution);
+        //accurate_circle(rounded_diam,4);
       }
       square([through_sheet*2+tab_tongue_length*2,height-rounded_diam],center=true);
     }
@@ -166,8 +166,8 @@ module tab(height) {
         square([tab_tongue_length,tab_tongue_length],center=true);
         for(x=[left,right]) {
           translate([x*(tab_tongue_length/2-rounded_diam/2),-height/2+rounded_diam/2]) {
-            //accurate_circle(rounded_diam,resolution);
-            accurate_circle(rounded_diam,4);
+            accurate_circle(rounded_diam,resolution);
+            //accurate_circle(rounded_diam,4);
           }
         }
       }

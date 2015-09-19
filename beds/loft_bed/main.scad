@@ -142,33 +142,49 @@ module slot(height,width=sheet_thickness) {
   */
 }
 
-module tab(height) {
+module retained_tab(height) {
   rounded_diam = tab_tongue_length;
   through_sheet = sheet_thickness+tolerance/2;
 
   module body() {
-    translate([0,height/2,0]) {
-      //fill_corner_with_round();
-    }
     hull() {
-      translate([0,height/2-0.5]) {
-        square([2,1],center=true);
+      square([through_sheet*2,height],center=true);
+      for(y=[front,rear]) {
+        translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(sheet_thickness/2+rounded_diam/2)]) {
+          accurate_circle(rounded_diam,resolution);
+        }
       }
-      translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
-        accurate_circle(rounded_diam,resolution);
-        //accurate_circle(rounded_diam,4);
-      }
-      square([through_sheet*2+tab_tongue_length*2,height-rounded_diam],center=true);
     }
+  }
 
+  module holes() {
     hull() {
-      translate([through_sheet+tab_tongue_length/2,0,0]) {
-        square([tab_tongue_length,tab_tongue_length],center=true);
-        for(x=[left,right]) {
-          translate([x*(tab_tongue_length/2-rounded_diam/2),-height/2+rounded_diam/2]) {
-            accurate_circle(rounded_diam,resolution);
-            //accurate_circle(rounded_diam,4);
-          }
+      for(x=[through_sheet]) {
+        translate([x,0,0]) {
+          square([sheet_thickness,sheet_thickness+tool_diam],center=true);
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module slide_tab(height) {
+  rounded_diam = tab_tongue_length;
+  through_sheet = sheet_thickness+tolerance/2;
+
+  module body() {
+    hull() {
+      translate([0,0]) {
+        square([2,height],center=true);
+      }
+      for(y=[top,bottom]) {
+        translate([through_sheet+tab_tongue_length-rounded_diam/2,y*(height/2-rounded_diam/2)]) {
+          accurate_circle(rounded_diam,resolution);
         }
       }
     }
@@ -201,8 +217,8 @@ module side_rail() {
     for(x=[left,right]) {
       for(i=[0:side_rail_num_tabs-1]) {
         mirror([1-x,0,0]) {
-          translate([side_rail_length/2,-side_rail_height/2+side_rail_tab_height*(.5+i*2),0]) {
-            tab(side_rail_tab_height);
+          translate([side_rail_length/2,-side_rail_height/2+side_rail_tab_height*(.5+i*2)+tab_tongue_length,0]) {
+            retained_tab(side_rail_tab_height);
           }
         }
       }
@@ -256,7 +272,7 @@ module platform_sheet() {
         mirror([0,1-y,0]) {
           translate([side_rail_length/8*x-tab_tongue_length,-sheet_width/2,0]) {
             rotate([0,0,-90]) {
-              tab(side_rail_tab_height);
+              slide_tab(side_rail_tab_height);
             }
           }
         }
@@ -278,7 +294,7 @@ module platform_sheet() {
         for(side=[left,right]) {
           translate([0,(side_rail_tab_height/2)*side,0]) {
             rotate([0,0,135*(1-side)]) {
-              fill_corner_with_round();
+              //fill_corner_with_round();
             }
           }
         }
@@ -323,13 +339,13 @@ module end_board_base() {
       }
     }
 
-    top_platform_pos    = end_board_height/2-side_rail_height+platform_support_width+sheet_thickness-end_board_height_above_side_board;
-    bottom_platform_pos = -end_board_height/2+bottom_rail_dist_from_end+platform_support_width+sheet_thickness;
+    top_platform_pos    = end_board_height/2-side_rail_height+platform_support_width+sheet_thickness/2-end_board_height_above_side_board;
+    bottom_platform_pos = -end_board_height/2+bottom_rail_dist_from_end+platform_support_width+sheet_thickness/2;
     for(end=[top_platform_pos,bottom_platform_pos]) {
       for(side=[left,right]) {
         translate([end_board_platform_support_tab_spacing/2*side,end,0]) {
           rotate([0,0,90]) {
-            slot(side_rail_tab_height,sheet_thickness*2);
+            slot(side_rail_tab_height,sheet_thickness);
           }
         }
       }
@@ -535,7 +551,7 @@ module assembly() {
     translate([0,side_rail_pos_y,bottom_rail_pos_z]) {
       rotate([90,0,0]) {
         linear_extrude(height=sheet_thickness,center=true) {
-          side_rail();
+          //side_rail();
         }
       }
     }
@@ -568,5 +584,36 @@ module assembly() {
 
   translate([0,extra_space_on_side_of_mattress/2,mattress_thickness/2]) {
     % cube([mattress_length,mattress_width,mattress_thickness],center=true);
+  }
+}
+
+module sample_fit() {
+  width = side_rail_tab_height*1.5;
+
+  module body() {
+    square([width,width],center=true);
+
+    translate([width/2,0,0]) {
+      slide_tab(side_rail_tab_height);
+    }
+
+    translate([-width/2,0,0]) {
+      rotate([0,0,-180]) {
+        retained_tab(side_rail_tab_height);
+      }
+    }
+  }
+
+  module holes() {
+    translate([0,width/2-sheet_thickness*1.5,0]) {
+      rotate([0,0,90]) {
+        slot(side_rail_tab_height);
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
   }
 }

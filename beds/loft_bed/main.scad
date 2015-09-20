@@ -23,18 +23,20 @@ multiplier = 1;    // things in inches
 multiplier = 25.4; // make things in mm
 
 sheet_thickness = .75 * multiplier;
+//sheet_thickness = 17;
 tool_diam       = 0.25 * multiplier;
 resolution      = 20;
 rounded_diam    = 2 * multiplier;
 tolerance       = 1 / 16 * multiplier;
+tolerance       = 3 / 32 * multiplier; // allow more room for a finish and/or misalignment?
 
 overcut_corner = sqrt(pow(tool_diam/2,2)/2)/2;
 
 mattress_width     = 39 * multiplier;
 mattress_length    = 75 * multiplier;
 mattress_thickness = 4 * multiplier;
-extra_space_on_side_of_mattress = 3 * multiplier;
-extra_space_on_end_of_mattress = 2 * multiplier;
+extra_space_on_side_of_mattress = 1.5 * multiplier;
+extra_space_on_end_of_mattress = 1.5 * multiplier;
 platform_width     = mattress_width + extra_space_on_side_of_mattress;
 platform_length    = mattress_length + extra_space_on_end_of_mattress;
 
@@ -175,7 +177,7 @@ module retained_tab(height) {
 
 module slide_tab(height) {
   rounded_diam = tab_tongue_length;
-  through_sheet = sheet_thickness+tolerance/2;
+  through_sheet = sheet_thickness+tolerance;
 
   module body() {
     hull() {
@@ -195,7 +197,7 @@ module slide_tab(height) {
       hull() {
         for(x=[left,right]) {
           for(y=[top,bottom]) {
-            translate([(through_sheet/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2)*y,0]) {
+            translate([(through_sheet/2-tool_diam/2)*x,(tab_tongue_length-tool_diam/2+tolerance/2)*y,0]) {
               //accurate_circle(tool_diam,resolution);
               accurate_circle(tool_diam,4);
             }
@@ -551,7 +553,7 @@ module assembly() {
     translate([0,side_rail_pos_y,bottom_rail_pos_z]) {
       rotate([90,0,0]) {
         linear_extrude(height=sheet_thickness,center=true) {
-          //side_rail();
+          side_rail();
         }
       }
     }
@@ -588,7 +590,7 @@ module assembly() {
 }
 
 module sample_fit() {
-  width = side_rail_tab_height*1.5;
+  width = side_rail_tab_height*2;
 
   module body() {
     square([width,width],center=true);

@@ -23,7 +23,7 @@ multiplier = 1;    // things in inches
 multiplier = 25.4; // make things in mm
 
 sheet_thickness = .75 * multiplier;
-//sheet_thickness = 17;
+sheet_thickness = 18;
 tool_diam       = 0.25 * multiplier;
 resolution      = 20;
 rounded_diam    = 2 * multiplier;

@@ -3,7 +3,10 @@ include <position.scad>;
 include <util.scad>;
 
 /*
-  TODO/ideas
+  TODO
+    * bolts
+
+  ideas
     * rubber grommets for frame -- need to measure, get from grainger's
       * http://www.grainger.com/category/rubber-grommets/rubber/raw-materials/ecatalog/N-c1x
     * diesel fuel line or some other rubber for vibration damping?
@@ -67,8 +70,9 @@ include <util.scad>;
 
 */
 
-front_plate_holes_to_bottom = 7 * 25.4;
-front_plate_holes_to_top = 6.5 * 25.4;
+front_plate_holes_to_bottom = 6.5 * 25.4;
+front_plate_holes_to_top    = 7   * 25.4;
+front_plate_frame_clearance = 4   * 25.4;
 
 
 module rear_plate() {
@@ -107,7 +111,7 @@ module rear_plate() {
       }
 
       // frame clearance
-      translate([frame_side_center_x*side,frame_side_center_z]) {
+      translate([(frame_side_center_x+frame_side_diam/2)*side,frame_side_center_z]) {
         accurate_circle(frame_side_diam+clearance,resolution);
 
         translate([40*side,0,0]) {
@@ -139,6 +143,23 @@ module rear_plate() {
   }
 }
 
+module front_plate_spacer() {
+  module body() {
+    intersection() {
+      front_plate();
+      square([frame_side_center_x*2-frame_side_diam,3*25.4],center=true);
+    }
+  }
+
+  module holes() {
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
 module front_plate() {
   module body() {
     hull() {
@@ -161,6 +182,23 @@ module front_plate() {
     for(x=[left,0,right]) {
       translate([150*x,0,0]) {
         accurate_circle(8,resolution);
+      }
+    }
+
+    for(side=[left,right]) {
+      // frame clearance
+      hull() {
+        translate([(frame_side_center_x+frame_side_diam/2)*side,-front_plate_holes_to_bottom+front_plate_frame_clearance-frame_side_diam/2]) {
+          accurate_circle(frame_side_diam+clearance,resolution);
+
+          translate([40*side,0,0]) {
+            square([80,frame_side_diam+clearance],center=true);
+          }
+
+          translate([0,-front_plate_frame_clearance,0]) {
+            square([frame_side_diam+clearance,frame_side_diam+clearance],center=true);
+          }
+        }
       }
     }
   }
@@ -197,18 +235,34 @@ module side_plate() {
 }
 
 module assembly() {
-  rotate([0,89,0]) {
-    rotate([0,0,90]) {
-      linear_extrude(height=sheet_thickness,center=true) {
-        //rear_plate();
+  translate([0,0,0]) {
+    rotate([0,89,0]) {
+      rotate([0,0,90]) {
+        linear_extrude(height=sheet_thickness,center=true) {
+          rear_plate();
+        }
       }
     }
   }
 
-  //bottom_plate();
+  linear_extrude(height=sheet_thickness,center=true) {
+    bottom_plate();
+  }
 
-  translate([0,0,0]) {
-    front_plate();
+  translate([800,0,20+front_plate_holes_to_bottom]) {
+    rotate([0,-90+14,0]) {
+      rotate([0,0,-90]) {
+        linear_extrude(height=sheet_thickness,center=true) {
+          front_plate();
+        }
+
+        translate([0,0,-sheet_thickness*2]) {
+          linear_extrude(height=sheet_thickness,center=true) {
+            front_plate_spacer();
+          }
+        }
+      }
+    }
   }
 
   translate([0,0,12]) {
@@ -235,6 +289,10 @@ module cut_sheet() {
 
   translate([0,-plate_width/2-10]) {
     rotate([0,0,90]) {
+      translate([0,front_plate_holes_to_top + 60,0]) {
+        front_plate_spacer();
+      }
+
       front_plate();
     }
   }

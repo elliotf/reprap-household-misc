@@ -21,6 +21,9 @@ inner_rack_tube_spacing = 60 - rack_tube_diam;
 rack_clamp_thickness = 30;
 clamp_hole_spacing   = [inner_rack_tube_spacing/2-rack_tube_diam,outer_rack_tube_spacing/2-(outer_rack_tube_spacing/2-inner_rack_tube_spacing/2)/2];
 clamp_screw_diam     = 5;
+clamp_height         = yepp_tongue_height+rack_tube_diam/2 - 1;
+clamp_cap_height     = rack_tube_diam * 1.5;
+space_between        = 2;
 
 main_plate_thickness = 10;
 main_plate_width     = yepp_window_width + min_material_width*2;
@@ -31,6 +34,19 @@ module screw_holes(height) {
     for(x=clamp_hole_spacing) {
       translate([x*side,0,0]) {
         hole(clamp_screw_diam,height,resolution);
+      }
+    }
+  }
+}
+
+module tube_holes(diam) {
+  for(side=[left,right]) {
+    //for(x=[outer_rack_tube_spacing,inner_rack_tube_spacing]) {
+    for(x=[inner_rack_tube_spacing]) {
+      translate([x/2*side,0,0]) {
+        rotate([90,0,0]) {
+          hole(diam,main_plate_len+2,resolution);
+        }
       }
     }
   }
@@ -57,8 +73,28 @@ module main_plate() {
   }
 }
 
+module clamp_cap() {
+  module body() {
+    translate([0,0,clamp_cap_height/2]) {
+      cube([main_plate_width,rack_clamp_thickness,clamp_cap_height],center=true);
+    }
+  }
+
+  module holes() {
+    translate([0,0,clamp_cap_height+space_between/2]) {
+      tube_holes(rack_tube_diam+1);
+    }
+
+    screw_holes(clamp_height);
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
 module rack_clamp() {
-  clamp_height = yepp_tongue_height+rack_tube_diam/2 - 1;
   module body() {
     translate([0,0,-clamp_height/2]) {
       cube([main_plate_width,rack_clamp_thickness,clamp_height],center=true);
@@ -66,15 +102,8 @@ module rack_clamp() {
   }
 
   module holes() {
-    for(side=[left,right]) {
-      //for(x=[outer_rack_tube_spacing,inner_rack_tube_spacing]) {
-      for(x=[inner_rack_tube_spacing]) {
-        translate([x/2*side,0,-clamp_height]) {
-          rotate([90,0,0]) {
-            hole(rack_tube_diam+1,main_plate_len,resolution);
-          }
-        }
-      }
+    translate([0,0,-clamp_height-space_between/2]) {
+      tube_holes(rack_tube_diam+1);
     }
 
     translate([0,-rack_clamp_thickness/2,-yepp_tongue_height/2]) {
@@ -104,17 +133,18 @@ module assembly() {
           rack_clamp();
         }
       }
+
+      translate([0,main_plate_len/2-rack_clamp_thickness/2,-clamp_height-space_between-clamp_cap_height]) {
+        color("lightgreen") {
+          clamp_cap();
+        }
+      }
     }
   }
 
   % for(side=[left,right]) {
-    for(x=[outer_rack_tube_spacing,inner_rack_tube_spacing]) {
-    //for(x=[inner_rack_tube_spacing]) {
-      translate([x/2*side,0,-yepp_tongue_height-rack_tube_diam/2]) {
-        rotate([90,0,0]) {
-          hole(rack_tube_diam,main_plate_len+5,resolution);
-        }
-      }
+    translate([0,0,-clamp_height-space_between/2]) {
+      tube_holes(rack_tube_diam);
     }
   }
 }

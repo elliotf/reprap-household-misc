@@ -86,6 +86,12 @@ num_rungs = 3;
 
 end_board_platform_support_tab_spacing = ladder_hole_width-side_rail_tab_height;
 
+wedge_hole_width  = sheet_thickness/2+tolerance/2;
+wedge_width  = wedge_hole_width*.75;
+wedge_height = sheet_thickness + tool_diam;
+wedge_length = sheet_thickness*2;
+
+
 echo("CLEARANCE UNDER BED: ", clearance_under_bed);
 echo("SIDE RAIL HEIGHT:    ", side_rail_height);
 echo("SIDE RAIL LENGTH:    ", side_rail_length);
@@ -587,6 +593,20 @@ module assembly() {
   translate([0,extra_space_on_side_of_mattress/2,mattress_thickness/2]) {
     % cube([mattress_length,mattress_width,mattress_thickness],center=true);
   }
+
+  translate([end_board_pos_x+sheet_thickness*.5+wedge_hole_width/2,-side_rail_pos_y,side_rail_pos_z]) {
+    for(i=[0:side_rail_num_tabs-1]) {
+      mirror([0,0,0]) {
+        for(r=[0]) {
+          rotate([0,0,180*r]) {
+            translate([-wedge_hole_width/2+wedge_width/2+0.5,-3,-side_rail_height/2+side_rail_tab_height*(.5+i*2)+tab_tongue_length]) {
+              retention_wedge();
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 module sample_fit() {
@@ -612,6 +632,37 @@ module sample_fit() {
         slot(side_rail_tab_height);
       }
     }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module retention_wedge() {
+  wedge_width     = 20;
+  hole_height     = 8;
+  extrusion_width = 0.6;
+  narrow_side     = extrusion_width*2;
+  wedge_height    = hole_height - narrow_side*.5;
+
+  module body() {
+    hull() {
+      //cube([wedge_width,wedge_length,wedge_height],center=true);
+      translate([wedge_height/2,-wedge_length/2,0]) {
+        cube([wedge_height,2,wedge_width],center=true);
+      }
+      translate([narrow_side/2,wedge_length/2,0]) {
+      //translate([-(wedge_width*.5),wedge_length/2-2,0]) {
+        cube([narrow_side,1,wedge_width],center=true);
+      }
+      /*
+      */
+    }
+  }
+
+  module holes() {
   }
 
   difference() {

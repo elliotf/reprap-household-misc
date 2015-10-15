@@ -32,7 +32,7 @@ box_tube_height    = 50.5;
 box_tube_length    = 175;
 box_tube_thickness = 3.1;
 
-box_tube_clamp_wall_thickness = 7;
+box_tube_clamp_wall_thickness = 5;
 box_tube_clamp_hole_diam  = 5;
 box_tube_clamp_width      = rack_tube_diam + box_tube_clamp_hole_diam + box_tube_clamp_wall_thickness*2;
 box_tube_clamp_height     = rack_tube_diam + box_tube_clamp_wall_thickness*2;
@@ -192,7 +192,7 @@ module box_tube_top_holes() {
 
 module box_tube_bottom_holes() {
   hole_spacing_y = 20;
-  to_cover       = box_tube_length-hole_spacing_y;
+  to_cover       = box_tube_length;
   num_holes      = floor(to_cover / hole_spacing_y);
   coverage       = num_holes*hole_spacing_y;
   remainder      = to_cover - coverage;
@@ -200,8 +200,13 @@ module box_tube_bottom_holes() {
   final_spacing  = hole_spacing_y+per_hole;
 
   for(x=[left,right]) {
-    for(i=[1:num_holes]) {
+    for(i=[1:num_holes-1]) {
       translate([box_tube_clamp_hole_mount_spacing/2*x,-box_tube_length/2+final_spacing*(i+0),0]) {
+        hole(box_tube_clamp_hole_diam,box_tube_thickness*3,resolution);
+      }
+    }
+    for(i=[1:num_holes-2]) {
+      translate([((box_tube_clamp_hole_mount_spacing/2)-box_tube_clamp_screw_tube_dist*2)*x,-box_tube_length/2+final_spacing*(i+0.5),0]) {
         hole(box_tube_clamp_hole_diam,box_tube_thickness*3,resolution);
       }
     }
@@ -250,7 +255,7 @@ module assembly() {
 
     for(x=[left,right]) {
       for(y=[front,rear]) {
-        translate([outer_rack_tube_spacing/2*x,(box_tube_length/2-box_tube_clamp_length)*y,0]) {
+        translate([outer_rack_tube_spacing/2*x,(box_tube_length/2-box_tube_clamp_length*.75)*y,0]) {
           rotate([0,0,-90*(x+box_tube_clamp_screw_side)]) {
             rotate([90,0,0]) {
               box_tube_clamp();

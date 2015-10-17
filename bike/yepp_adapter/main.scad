@@ -1,6 +1,6 @@
 include <config.scad>;
 include <position.scad>;
-include <util.scad>;
+include <../../lib/util.scad>;
 
 yepp_window_len   = 90;
 yepp_window_width = 65;
@@ -29,7 +29,7 @@ main_plate_len       = yepp_window_len + yepp_tongue_len*1.5 + rack_clamp_thickn
 
 box_tube_width     = 127;
 box_tube_height    = 50.5;
-box_tube_length    = 175;
+box_tube_length    = 187;
 box_tube_thickness = 3.1;
 
 box_tube_clamp_wall_thickness = 5;
@@ -172,11 +172,15 @@ module box_tube() {
     cube([box_tube_width-box_tube_thickness*2,box_tube_length+box_tube_thickness*2,box_tube_height-box_tube_thickness*2],center=true);
 
     translate([0,0,box_tube_height/2]) {
-      box_tube_top_holes();
+      linear_extrude(height=box_tube_thickness*2+1,center=true) {
+        box_tube_top_holes();
+      }
     }
 
     translate([0,0,-box_tube_height/2]) {
-      box_tube_bottom_holes();
+      linear_extrude(height=box_tube_thickness*2+1,center=true) {
+        box_tube_bottom_holes();
+      }
     }
   }
 
@@ -187,7 +191,23 @@ module box_tube() {
 }
 
 module box_tube_top_holes() {
-  cube([yepp_window_width,yepp_window_len,box_tube_thickness*2+1],center=true);
+  square([yepp_window_width,yepp_window_len],center=true);
+}
+
+module top_cuts() {
+  box_tube_top_holes();
+  difference() {
+    square([box_tube_width,box_tube_length],center=true);
+    square([box_tube_width-5,box_tube_length-5],center=true);
+  }
+}
+
+module bottom_cuts() {
+  box_tube_bottom_holes();
+  difference() {
+    square([box_tube_width,box_tube_length],center=true);
+    square([box_tube_width-5,box_tube_length-5],center=true);
+  }
 }
 
 module box_tube_bottom_holes() {
@@ -202,12 +222,12 @@ module box_tube_bottom_holes() {
   for(x=[left,right]) {
     for(i=[1:num_holes-1]) {
       translate([box_tube_clamp_hole_mount_spacing/2*x,-box_tube_length/2+final_spacing*(i+0),0]) {
-        hole(box_tube_clamp_hole_diam,box_tube_thickness*3,resolution);
+        accurate_circle(box_tube_clamp_hole_diam,resolution);
       }
     }
     for(i=[1:num_holes-2]) {
       translate([((box_tube_clamp_hole_mount_spacing/2)-box_tube_clamp_screw_tube_dist*2)*x,-box_tube_length/2+final_spacing*(i+0.5),0]) {
-        hole(box_tube_clamp_hole_diam,box_tube_thickness*3,resolution);
+        accurate_circle(box_tube_clamp_hole_diam,resolution);
       }
     }
   }

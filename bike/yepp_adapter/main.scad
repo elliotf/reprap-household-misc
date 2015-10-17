@@ -193,7 +193,8 @@ module box_tube() {
 }
 
 module box_tube_top_holes() {
-  square([yepp_window_width,yepp_window_len],center=true);
+  //square([yepp_window_width,yepp_window_len],center=true);
+  square([61.5,yepp_window_len],center=true);
 
   spacing_x = yepp_window_width + (box_tube_width  - yepp_window_width) /2;
   spacing_y = yepp_window_len   + (box_tube_length - yepp_window_len) /2;

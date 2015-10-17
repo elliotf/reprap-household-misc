@@ -42,6 +42,8 @@ box_tube_clamp_screw_side = -1; // inside
 box_tube_clamp_screw_side = 1; // outside
 box_tube_clamp_hole_mount_spacing = outer_rack_tube_spacing + 2*(box_tube_clamp_screw_tube_dist*box_tube_clamp_screw_side);
 
+tool_diam = 6.4; // ~ .25"
+
 module printed_part_screw_holes(height) {
   for(side=[left,right]) {
     for(x=clamp_hole_spacing) {
@@ -192,6 +194,17 @@ module box_tube() {
 
 module box_tube_top_holes() {
   square([yepp_window_width,yepp_window_len],center=true);
+
+  spacing_x = yepp_window_width + (box_tube_width  - yepp_window_width) /2;
+  spacing_y = yepp_window_len   + (box_tube_length - yepp_window_len) /2;
+
+  for(x=[left,0,right]) {
+    for(y=[front,0,rear]) {
+      translate([spacing_x/2*x,spacing_y/2*y,0]) {
+        accurate_circle(box_tube_clamp_hole_diam,resolution);
+      }
+    }
+  }
 }
 
 module top_cuts() {

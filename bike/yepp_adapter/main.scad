@@ -11,7 +11,8 @@ yepp_tongue_height = 35;
 min_material_width = 20;
 resolution         = 32;
 
-rack_tube_diam    = 10.75;
+rack_tube_diam      = 10.75;
+rack_tube_hole_diam = rack_tube_diam + 0.1;
 
 outer_rack_tube_spacing = 99 - rack_tube_diam;
 inner_rack_tube_spacing = 60 - rack_tube_diam;
@@ -247,25 +248,40 @@ module box_tube_bottom_holes() {
   }
 }
 
-module box_tube_clamp() {
+module box_tube_clamp_2d() {
   module body() {
     translate([-box_tube_clamp_hole_diam/2,0,0]) {
-      cube([box_tube_clamp_width,box_tube_clamp_height,box_tube_clamp_length],center=true);
+      square([box_tube_clamp_width,box_tube_clamp_height],center=true);
     }
   }
 
   module holes() {
     rack_tube_hole_diam = rack_tube_diam + 0.1;
-    hole(rack_tube_hole_diam,box_tube_clamp_length+1,resolution);
+    accurate_circle(rack_tube_hole_diam,resolution);
 
+    translate([-box_tube_clamp_width/2,0,0]) {
+      square([box_tube_clamp_width,rack_tube_hole_diam-1],center=true);
+    }
+  }
+
+  color("lightblue") difference() {
+    body();
+    holes();
+  }
+}
+
+module box_tube_clamp() {
+  module body() {
+    linear_extrude(height=box_tube_clamp_length,center=true) {
+      box_tube_clamp_2d();
+    }
+  }
+
+  module holes() {
     translate([-rack_tube_hole_diam/2-box_tube_clamp_hole_diam/2,0,0]) {
       rotate([90,0,0]) {
         # hole(box_tube_clamp_hole_diam,box_tube_clamp_height*2,resolution);
       }
-    }
-
-    translate([-box_tube_clamp_width/2,0,0]) {
-      cube([box_tube_clamp_width,rack_tube_hole_diam-1,box_tube_clamp_length+1],center=true);
     }
   }
 

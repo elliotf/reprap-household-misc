@@ -89,7 +89,7 @@ end_board_platform_support_tab_spacing = ladder_hole_width-side_rail_tab_height;
 wedge_hole_width  = sheet_thickness/2+tolerance/2;
 wedge_width  = wedge_hole_width*.75;
 wedge_height = sheet_thickness + tool_diam;
-wedge_length = sheet_thickness*2;
+wedge_length = sheet_thickness*2.5;
 
 
 echo("CLEARANCE UNDER BED: ", clearance_under_bed);
@@ -640,29 +640,81 @@ module sample_fit() {
   }
 }
 
-module retention_wedge() {
+wedge_angle = 4;
+
+module captive_retention_wedge(added=0) {
   wedge_width     = 20;
   hole_height     = 8;
+  hole_height     = 10;
+  extrusion_width = 0.6;
+  narrow_side     = extrusion_width*2;
+  wedge_height    = hole_height - narrow_side*.5;
+
+  captive_tab_height = 4;
+
+  module body() {
+    translate([-captive_tab_height/2-added,0,0]) {
+      cube([captive_tab_height,sheet_thickness+tool_diam,wedge_width],center=true);
+    }
+    translate([0,0,0]) {
+      retention_wedge(added);
+    }
+  }
+
+  set_screw_diam      = 4;
+  set_screw_hole_diam = 3.5;
+
+  module holes() {
+    for(side=[left,right]) {
+      translate([-tool_diam/2-added,(sheet_thickness/2+tool_diam/2)*side,0]) {
+        hole(tool_diam,wedge_width+1,resolution);
+        translate([-tool_diam/2,0,0]) {
+          cube([tool_diam,tool_diam,wedge_width+1],center=true);
+        }
+      }
+    }
+
+    rotate([0,0,wedge_angle]) {
+      translate([hole_height/2-set_screw_hole_diam*0.2,-sheet_thickness*.5-set_screw_diam*.6,0]) {
+        translate([0,0,wedge_width*.5]) {
+          rotate([40,0,0]) {
+            hole(set_screw_hole_diam,wedge_width*1.65,16);
+          }
+        }
+      }
+    }
+  }
+
+  difference() {
+    body();
+    holes();
+  }
+}
+
+module retention_wedge(added=0) {
+  wedge_width     = 20;
+  hole_height     = 7.75;
+  hole_height     = 10;
   extrusion_width = 0.6;
   narrow_side     = extrusion_width*2;
   wedge_height    = hole_height - narrow_side*.5;
 
   module body() {
-    hull() {
-      //cube([wedge_width,wedge_length,wedge_height],center=true);
-      translate([wedge_height/2,-wedge_length/2,0]) {
-        cube([wedge_height,2,wedge_width],center=true);
-      }
-      translate([narrow_side/2,wedge_length/2,0]) {
-      //translate([-(wedge_width*.5),wedge_length/2-2,0]) {
-        cube([narrow_side,1,wedge_width],center=true);
-      }
-      /*
-      */
+    translate([hole_height/2,0,0]) {
+      cube([hole_height+added*2,wedge_length,wedge_width],center=true);
     }
   }
 
   module holes() {
+    translate([hole_height,0,0]) {
+      translate([-hole_height/2,0,0]) {
+        rotate([0,0,wedge_angle]) {
+          translate([hole_height/2,0,0]) {
+            cube([hole_height,wedge_length*2,wedge_width+1],center=true);
+          }
+        }
+      }
+    }
   }
 
   difference() {

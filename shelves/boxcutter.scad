@@ -12,7 +12,7 @@ bc_screw_len         = 6;
 bc_nut_diam          = 5.5;
 bc_kerf_width        = 0.01;
 
-bc_tab_slot_pair_space          = 20;
+bc_tab_slot_pair_space          = 25;
 bc_tab_slot_pair_len            = bc_tab_len*2 + bc_tab_slot_pair_space;
 bc_space_between_tab_slot_pairs = bc_tab_slot_pair_len*1.25;
 bc_pair_and_spacing_len         = bc_tab_slot_pair_len + bc_space_between_tab_slot_pairs;
@@ -46,7 +46,7 @@ module bc_screw_nut_hole() {
 }
 
 module bc_offset_ziptie_hole() {
-  translate([bc_tab_slot_pair_len/2,-bc_shoulder_width*.75-bc_thickness/2,0]) {
+  translate([bc_tab_slot_pair_len/2,-bc_shoulder_width*2,0]) {
     square([bc_ziptie_width,bc_ziptie_thickness],center=true);
   }
 }
@@ -103,7 +103,7 @@ module bc_offset_tab_pair(with_hole=BC_NO_HOLES) {
 
   if(with_hole==BC_WITH_ZIP_HOLES) {
     for(side=[-1,1]) {
-      translate([bc_tab_slot_pair_len/2,(bc_thickness/2+bc_shoulder_width*.0+bc_ziptie_thickness*1)*side,0]) {
+      translate([bc_tab_slot_pair_len/2,(bc_thickness/2+bc_ziptie_thickness*0.5)*side,0]) {
         square([bc_ziptie_width,bc_ziptie_thickness],center=true);
       }
     }

@@ -18,7 +18,7 @@ module under_desk_hook() {
   screw_hole_diam  = 5;
   screw_hole_pos_z = -hook_depth-hook_opening+body_thickness-screw_head_diam/2;
 
-  offset_by    = 180;
+  offset_by    = 100;
   module hook_2d() {
     translate([offset_by,0]) {
       translate([-hook_opening/2,-hook_depth/2,0]) {

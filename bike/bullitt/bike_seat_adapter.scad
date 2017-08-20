@@ -2,7 +2,6 @@ include <../../lib/util.scad>;
 
 inch                   = 25.4;
 bullitt_hole_spacing_x = 150;
-bullitt_hole_spacing_y = 200;
 bullitt_hole_diam      = (3/8)*inch;
 topeak_bolt_diam       = (1/2)*inch;
 topeak_bolt_spacing_x  = (7+(15/16))*inch;
@@ -26,7 +25,7 @@ module tube(length) {
 }
 
 overall_width = bullitt_hole_spacing_x*2+tubing_width;
-echo("Overall width: ", bullitt_hole_spacing_x*2+tubing_width/inch);
+echo("Overall width: ", (bullitt_hole_spacing_x*2+tubing_width)/inch);
 echo("Overall depth: ", (rear_mount_bolt_dist_y+front_mount_bolt_dist_y+tubing_width)/inch);
 
 module adapter_plate() {
@@ -64,6 +63,8 @@ module adapter_plate() {
         }
       }
     }
+
+    //alignment_lines();
   }
 
   difference() {
@@ -72,28 +73,58 @@ module adapter_plate() {
   }
 }
 
-translate([0,0,sheet_thickness]) {
-  linear_extrude(height=sheet_thickness,center=true) {
-    adapter_plate();
+
+module alignment_lines() {
+  // so that we can print the design on multiple pieces of paper and tape them together
+
+  for(side=[left,right]) {
+    for(y=[2*inch,6*inch]) {
+      hull() {
+        translate([0,y,0]) {
+          rotate([0,0,15*side]) {
+            square([bullitt_hole_spacing_x*1.75,10], center=true);
+          }
+        }
+      }
+    }
+
+    translate([bullitt_hole_spacing_x*0.25*side,3.5*inch,0]) {
+      square([10,12*inch], center=true);
+    }
+  }
+  translate([0,-rear_mount_bolt_dist_y/2,0]) {
+    square([bullitt_hole_spacing_x,10], center=true);
   }
 }
 
-tube_opacity = 0.75;
+module assembly() {
+  translate([0,0,sheet_thickness]) {
+    linear_extrude(height=sheet_thickness,center=true) {
+      adapter_plate();
+    }
+  }
 
-tubing_length = front_mount_bolt_dist_y+tubing_width;
-for(x=[left,right]) {
-  translate([bullitt_hole_spacing_x*x,-tubing_width/2+tubing_length/2,-tubing_height/2]) {
-    color("lightblue", tube_opacity) tube(tubing_length);
+  tube_opacity = 0.75;
+
+  tubing_length = front_mount_bolt_dist_y+tubing_width;
+  for(x=[left,right]) {
+    translate([bullitt_hole_spacing_x*x,-tubing_width/2+tubing_length/2,-tubing_height/2]) {
+      color("lightblue", tube_opacity) tube(tubing_length);
+    }
+  }
+
+  center_tubing_length = tubing_length+rear_mount_bolt_dist_y;
+  translate([0,-tubing_width/2-rear_mount_bolt_dist_y+center_tubing_length/2,-tubing_height/2]) {
+    color("lightblue", tube_opacity) tube(center_tubing_length);
+  }
+
+  translate([0,0,sheet_thickness*2+tubing_height/2]) {
+    rotate([0,0,90]) {
+      color("lightblue", tube_opacity) tube(overall_width);
+    }
   }
 }
 
-center_tubing_length = tubing_length+rear_mount_bolt_dist_y;
-translate([0,-tubing_width/2-rear_mount_bolt_dist_y+center_tubing_length/2,-tubing_height/2]) {
-  color("lightblue", tube_opacity) tube(center_tubing_length);
-}
+//assembly();
 
-translate([0,0,sheet_thickness*2+tubing_height/2]) {
-  rotate([0,0,90]) {
-    color("lightblue", tube_opacity) tube(overall_width);
-  }
-}
+adapter_plate();

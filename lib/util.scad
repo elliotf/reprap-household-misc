@@ -34,3 +34,15 @@ module debug_axes() {
     translate([0,0,50]) cube([.2,.2,100],center=true);
   }
 }
+
+module rounded_square(width,height,diam,resolution=16) {
+  hull() {
+    for(x=[left,right]) {
+      for(y=[front,rear]) {
+        translate([x*(width/2-diam/2),y*(height/2-diam/2),0]) {
+          accurate_circle(diam,resolution);
+        }
+      }
+    }
+  }
+}

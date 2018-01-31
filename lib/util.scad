@@ -13,6 +13,8 @@ width  = x;
 depth  = y;
 height = z;
 
+inch = 25.4;
+
 function accurate_diam(diam,sides) = 1 / cos(180/sides) / 2 * diam;
 
 module hole(diam,len,sides=8) {

@@ -1,4 +1,4 @@
-include <../../lib/util.scad>;
+include <../lib/util.scad>;
 
 resolution = 64;
 extrusion_width = 0.55;

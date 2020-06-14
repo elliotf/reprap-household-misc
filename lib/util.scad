@@ -25,7 +25,7 @@ module hole(diam,len,sides=8) {
 
 module accurate_circle(diam,sides=8) {
   rotate([0,0,180/sides]) {
-    circle(r=accurate_diam(diam,sides),center=true,$fn=sides);
+    circle(r=accurate_diam(diam,sides),$fn=sides);
   }
 }
 

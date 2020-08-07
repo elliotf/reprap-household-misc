@@ -17,7 +17,7 @@ xiao_connector_overhang = 1.5;
 xiao_connector_width = 9;
 xiao_connector_length = 7.5;
 xiao_connector_height = 3.25;
-xiao_board_thickness = 1.5;
+xiao_board_thickness = 1.4;
 xiao_rounded_diam = 1.75*2;
 
 keycap_side = 20;
@@ -29,11 +29,11 @@ led_ring_od = 38;
 led_ring_id = 23;
 led_ring_board_thickness = 2;
 led_ring_overall_thickness = 3.4;
-led_diffusion_thickness = keyswitch_ledge_thickness;
+led_diffusion_thickness = 0.2*4; // N layers thick
 
-xiao_pos_z = 0.2*8;
-keyswitch_pos_z = xiao_pos_z + xiao_height + keyswitch_height_below_plate + 2;
-led_ring_pos_z = keyswitch_pos_z - keyswitch_ledge_thickness - led_ring_overall_thickness - 5;
+xiao_pos_z = 0.2*4;
+keyswitch_pos_z = xiao_pos_z + xiao_height + keyswitch_height_below_plate + 1;
+led_ring_pos_z = keyswitch_pos_z-led_diffusion_thickness-led_ring_overall_thickness;
 
 total_height = keyswitch_pos_z;
 
@@ -217,14 +217,23 @@ module top() {
 
   module holes() {
     position_led_ring() {
-      translate([0,0,led_ring_overall_thickness-25]) {
-        led_ring_cavity_height = 50;
-        hole(top_inner_diam,led_ring_cavity_height,resolution);
+      led_ring_cavity_height = 50;
+      translate([0,0,led_ring_overall_thickness-led_ring_cavity_height/2]) {
+        linear_extrude(height=led_ring_cavity_height,center=true,convexity=2) {
+          difference() {
+            accurate_circle(top_inner_diam,resolution);
+            accurate_circle(led_ring_id-tolerance*2,resolution);
+          }
+        }
       }
     }
 
     position_keyswitch() {
       cube([keyswitch_hole_side,keyswitch_hole_side,keyswitch_hole_side],center=true);
+
+      translate([0,0,-keyswitch_ledge_thickness-25]) {
+        hole(led_ring_id,50,16);
+      }
     }
 
     position_xiao() {
@@ -241,28 +250,6 @@ module top() {
       thread_depth = 4;
       position_screw_holes() {
         hole(m3_thread_into_plastic_diam,thread_depth*2,16);
-      }
-    }
-
-    // lense for led light
-    translate([0,0,keyswitch_pos_z-led_diffusion_thickness-25]) {
-      gap_width = 0.1;
-      diam = led_ring_od - 3*2;
-      linear_extrude(height=50,center=true,convexity=2) {
-        difference() {
-          accurate_circle(diam+gap_width*2,resolution);
-          accurate_circle(diam,resolution);
-        }
-      }
-    }
-
-    // clearance for keyswitch
-    hull() {
-      translate([0,0,keyswitch_pos_z-keyswitch_ledge_thickness-1]) {
-        cube([17,17,2],center=true);
-      }
-      translate([0,0,led_ring_pos_z]) {
-        hole(led_ring_id+2,led_ring_overall_thickness*2,resolution);
       }
     }
 
@@ -338,12 +325,12 @@ module bottom() {
     position_xiao() {
       rounded_diam = 4;
       depth = 6;
-      overhang_depth = 1.5;
+      overhang_depth = 1.4;
 
-      translate([0,-xiao_cavity_length/2-depth/2,xiao_board_thickness+tolerance*3]) {
+      translate([0,-xiao_cavity_length/2-depth/2,xiao_board_thickness+tolerance*1]) {
         hull() {
           rounded_cube(10,depth,0.2,rounded_diam);
-          translate([0,overhang_depth/2,overhang_depth*1.5]) {
+          translate([0,overhang_depth/2,overhang_depth*1.2]) {
             rounded_cube(10,depth+overhang_depth,0.2,rounded_diam);
           }
         }

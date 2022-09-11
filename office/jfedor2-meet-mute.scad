@@ -49,9 +49,12 @@ case_screw_length = 10;
 top_height = 20;
 top_thickness = extrude_height*4;
 bottom_height = 6.5; // uc_cavity_deep_height+extrude_height*6;
-bottom_thickness = extrude_height*7;
+bottom_thickness = extrude_height*8;
 
-top_bottom_screw_gap = 1; // make screw post area a little short so that the outside rim closes first
+top_bevel = 5;
+bottom_bevel = bottom_thickness;
+
+top_bottom_screw_gap = 0.5; // make screw post area a little short so that the outside rim closes first
 keyswitch_below_surface = top_height-keyswitch_height_below_plate-keyswitch_ledge_thickness;
 
 overall_height = bottom_height+top_height;
@@ -71,6 +74,29 @@ body_outer_flat_depth = 3;
 
 module uc() {
   pcb(RPI_Pico);
+}
+
+module main_shape(od,height,bevel_height=3) {
+  a_od = od-bevel_height*2;
+  a_height = height-bevel_height;
+  hull() {
+    // narrower but full height
+    difference() {
+      hole(a_od,height,body_od_fn);
+      translate([-a_od+body_outer_flat_depth,0,0]) {
+        cube([a_od,100,100],center=true);
+      }
+    }
+    // shorter but full diam
+    translate([0,0,-bevel_height/2]) {
+      difference() {
+        hole(od,a_height,body_od_fn);
+        translate([-od+body_outer_flat_depth,0,0]) {
+          cube([od,100,100],center=true);
+        }
+      }
+    }
+  }
 }
 
 module position_led_ring_holes() {
@@ -169,7 +195,9 @@ module position_case_screw_holes() {
 module bottom() {
   module body() {
     translate([0,0,bottom_height/2]) {
-      hole(body_od,bottom_height,body_od_fn);
+      rotate([180,0,0]) {
+        main_shape(body_od,bottom_height,bottom_bevel);
+      }
     }
   }
 
@@ -225,14 +253,14 @@ module bottom() {
 
     // save some amount of plastic, maybe let more light out
     translate([0,0,bottom_height]) {
-      recess_height = uc_cavity_deep_height+tolerance/2; // bottom_height-extrude_height*6;
       difference() {
-        hole(body_od-(wall_thickness*2*2),recess_height*2,body_od_fn);
+        translate([0,0,-bottom_height/2+bottom_thickness]) {
+          rotate([180,0,0]) {
+            main_shape(body_od-wall_thickness*4,bottom_height,bottom_bevel-bottom_thickness);
+          }
+        }
         position_uc() {
           rounded_cube(uc_cavity_length+wall_thickness*4,uc_cavity_width+wall_thickness*4,bottom_height*4,wall_thickness*4);
-        }
-        translate([-body_od/2+body_outer_flat_depth,0,0]) {
-          cube([wall_thickness*4,body_od,bottom_height*4],center=true);
         }
         for(r=[left,right]) {
           rotate([0,0,r*(led_ring_led_angle*1.5)]) {
@@ -290,7 +318,7 @@ module top() {
 
   module body() {
     translate([0,0,-top_height/2]) {
-      hole(body_od,top_height,body_od_fn);
+      main_shape(body_od,top_height,top_bevel);
     }
   }
 
@@ -303,11 +331,9 @@ module top() {
     translate([0,0,-top_height]) {
       recess_height = top_height-top_thickness; // bottom_height-extrude_height*6;
       difference() {
-        hole(body_od-(wall_thickness*2*2),recess_height*2,body_od_fn);
 
-        // leave wall thickness at the flat spot
-        translate([-body_od/2+body_outer_flat_depth,0,0]) {
-          cube([wall_thickness*4,body_od,overall_height*2],center=true);
+        translate([0,0,-top_thickness+top_height/2]) {
+          main_shape(body_od-wall_thickness*4,top_height,top_bevel-top_thickness);
         }
 
         // posts for keyswitch and screws
@@ -335,6 +361,10 @@ module top() {
 
       translate([0,0,-keyswitch_ledge_thickness-overall_height]) {
         rounded_cube(keycap_hole_side,keycap_hole_side,overall_height*2,keycap_hole_rounded);
+
+        translate([-keycap_hole_side/2,0,0]) {
+          cube([10,keycap_hole_side-keycap_hole_rounded,overall_height*2],center=true);
+        }
       }
     }
   }
@@ -346,17 +376,42 @@ module top() {
 }
 
 if (debug) {
-  position_led_ring() {
-    //led_ring();
+  difference() {
+    union() {
+      position_led_ring() {
+        led_ring();
+      }
+
+      position_uc() {
+        uc();
+      }
+
+      translate([0,0,bottom_height+top_height]) {
+        // color("#9a9", 0.1) top();
+      }
+
+      color("#a99", 0.1) bottom();
+    }
+    if (0) {
+      translate([0,front*50,0]) {
+        cube([100,100,100],center=true);
+      }
+    }
   }
 
-  position_uc() {
-    //uc();
+  if (0) {
+    translate([0,0,overall_height*3]) {
+      difference() {
+        translate([0,0,0]) {
+          main_shape(body_od,top_height);
+        }
+        translate([0,0,-top_thickness]) {
+          main_shape(body_od-wall_thickness*4,top_height);
+        }
+        translate([0,-50,0]) {
+          cube([100,100,100],center=true);
+        }
+      }
+    }
   }
-
-  translate([0,0,bottom_height+top_height]) {
-    top();
-  }
-
-  color("#ccc", 0.1) bottom();
 }

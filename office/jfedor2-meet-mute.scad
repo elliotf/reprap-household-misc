@@ -1,6 +1,15 @@
 include <lumpyscad/lib.scad>;
 include <NopSCADlib/lib.scad>;
 
+// for more details, please see:
+//   https://github.com/jfedor2/meet-mute-button
+//
+// but with:
+// * more openscad
+// * the ability to push the boot select button without taking it apart
+// * Cherry MX keyswitch instead of Choc
+//   * though I don't know if their hole dimensions are different, as I only have Cherry switches on hand
+
 debug=1;
 resolution=32;
 pi = 3.14159;
@@ -167,22 +176,6 @@ module position_uc() {
   }
 }
 
-module top() {
-  module body_profile() {
-  }
-
-  module body() {
-  }
-
-  module holes() {
-  }
-
-  difference() {
-    body();
-    holes();
-  }
-}
-
 module position_case_screw_holes() {
   screw_post_dist = uc_cavity_width+case_screw_diam+wall_thickness*4;
   for(y=[front,rear]) {
@@ -218,7 +211,7 @@ module bottom() {
 
       // make it so that the boot select button can be pressed without disassembly
       // nophead has 12.75x and 7.5y, but measuring my uc looks different
-      //translate([-uc_length/2+12.75,-uc_width/2+7.5,0]) {
+      //translate([-uc_length/2+12.75,-uc_width/2+7.5,0])
       translate([-uc_length/2+12,-uc_width/2+7,0]) {
         button_tab_size = 4;
         button_tab_length = 20;
@@ -387,10 +380,10 @@ if (debug) {
       }
 
       translate([0,0,bottom_height+top_height]) {
-        // color("#9a9", 0.1) top();
+        color("#a99", 0.2) top();
       }
 
-      color("#a99", 0.1) bottom();
+      color("#a99", 0.2) bottom();
     }
     if (0) {
       translate([0,front*50,0]) {

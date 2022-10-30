@@ -1,19 +1,29 @@
 include <lumpyscad/lib.scad>;
 
+// designed to wrap around something like https://www.gobilda.com/1309-series-sonic-hub-8mm-rex-bore/
+//
+// TODO:
+//
+//   line retainment
+//   verify dimensions
+
+tolerance = 0.5;
+
 extrude_width = 0.5;
 extrude_height = 0.24;
 
 resolution = 128;
-id = 22;
+id = 32+tolerance*2;
 pulley_wall_thickness = extrude_width*3*2;
 od = id + 2*pulley_wall_thickness;
-rim_height = 1;
-height = 10;
+rim_height = 2.5;
+
 plate_thickness = 3;
+height = 8+plate_thickness;
 
 mounting_hole_spacing = 16;
-mounting_hole_diam = 4;
-center_shaft_diam = 8;
+mounting_hole_diam = 4+tolerance;
+center_shaft_diam = 14+tolerance;
 
 module pulley() {
   module profile() {
@@ -61,13 +71,9 @@ module pulley() {
   }
 
   module holes() {
-    for(r=[0,90]) {
-      rotate([0,0,r]) {
-        for(y=[front,rear]) {
-          translate([0,y*mounting_hole_spacing/2,0]) {
-            hole(mounting_hole_diam,height*3,16);
-          }
-        }
+    for(x=[left,right],y=[front,rear]) {
+      translate([x*mounting_hole_spacing/2,y*mounting_hole_spacing/2,0]) {
+        hole(mounting_hole_diam,height*3,16);
       }
     }
     hole(center_shaft_diam,height*3,resolution/2);

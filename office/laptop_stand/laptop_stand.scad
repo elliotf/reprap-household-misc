@@ -292,6 +292,7 @@ module printed_brace_foot() {
   slot_depth = 4;
   wall_thickness = 5;
   rounded_diam = 2;
+  webbing_thickness = 4;
 
   screw_diam = 5.4;
   screw_head_diam = 9;
@@ -301,13 +302,13 @@ module printed_brace_foot() {
   hole_spacing = overall_width-wall_thickness*2-screw_head_diam;
 
   module body() {
-    translate([0,-extrusion_brace_length/2+wall_thickness/2,-thickness/4]) {
-      rounded_cube(overall_width,wall_thickness,extrusion_side+thickness/2,wall_thickness/2);
+    translate([0,-extrusion_brace_length/2+wall_thickness/2,-webbing_thickness/2]) {
+      rounded_cube(overall_width,wall_thickness,extrusion_side+webbing_thickness,wall_thickness/2);
     }
 
     // leg
     hull() {
-      translate([0,0,-thickness/2]) {
+      translate([0,0,-webbing_thickness]) {
         translate([0,extrusion_brace_length/2+rounded_foot_diam/2,0]) {
           hole(rounded_foot_diam,thickness,resolution);
         }
@@ -319,16 +320,16 @@ module printed_brace_foot() {
 
     // plate
     hull() {
-      translate([0,0,-thickness*3/4]) {
+      translate([0,0,-extrusion_side/2-webbing_thickness/2]) {
         translate([0,extrusion_brace_length/2+rounded_foot_diam/2,0]) {
-          hole(rounded_foot_diam,thickness/2,resolution);
+          hole(rounded_foot_diam,webbing_thickness,resolution);
         }
 
         translate([0,-extrusion_brace_length/2-extrusion_side/2,0]) {
-          rounded_cube(overall_width,wall_thickness,thickness/2,rounded_diam);
+          rounded_cube(overall_width,wall_thickness,webbing_thickness,rounded_diam);
         }
         translate([0,-extrusion_brace_length/2+wall_thickness/2,0]) {
-          rounded_cube(overall_width,wall_thickness,thickness/2,rounded_diam);
+          rounded_cube(overall_width,wall_thickness,webbing_thickness,rounded_diam);
         }
       }
     }
@@ -374,6 +375,18 @@ module laptop_stabilizer() {
   slot_depth = 4;
 
   module body() {
+    /*
+    hull() {
+      translate([0,-depth/2+(depth/2+small_diam/2),thickness/2]) {
+        rounded_cube(depth+small_diam*2,depth+small_diam,thickness,small_diam);
+      }
+      for(x=[left,right]) {
+        translate([x*(width/2-small_diam/2),-depth/2+small_diam/2,thickness-small_thickness/2]) {
+          hole(small_diam,small_thickness,resolution);
+        }
+      }
+    }
+    */
     translate([0,depth/2,-clamp_length/2+1]) {
       rounded_cube(slot_width,slot_depth*2,clamp_length+2,tiny_diam/2);
     }
@@ -401,9 +414,16 @@ module laptop_stabilizer() {
   }
 
   module holes() {
+    //hole(6.5,(clamp_length+thickness)*3,resolution);
+
     translate([0,0,thickness-10]) {
       mid_air_hole(6.5,12);
     }
+    /*
+    translate([0,0,-foot_height]) {
+      hole(12,foot_height,resolution);
+    }
+    */
   }
 
   difference() {
